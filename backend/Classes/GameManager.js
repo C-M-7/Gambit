@@ -1,5 +1,3 @@
-const Game = require("./Game");
-
 class GameManager{
     constructor(){
         this.liveGames = new Map();
