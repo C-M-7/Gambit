@@ -6,7 +6,7 @@ class Game{
         this.p2 = null;
         this.gameId = gameId;
         this.chess = new Chess();
-        this.moves = [];
+        this.moves = [];    
     }
 
     makeMove(pMove){
