@@ -1,25 +1,31 @@
 const Game = require('../Classes/Game.js');
+const { v4: uuidv4 } = require('uuid');
 const GameManager = require('../Classes/GameManager.js');
 
 const gm = new GameManager();   
 
+const generateGameId = () =>{
+    return uuidv4();
+}
+
 module.exports = (io) =>{ 
     io.on('connection', (socket)=>{
     console.log('a user connected');
+    const player = socket.handshake.headers.email;
 
     socket.on("create_game", ()=>{
-        const game = new Game('first');
-        game.p1 = socket.id;
-        gm.addGame('first', game);
-        io.to(socket.id).emit("gameId", game.gameId);
+        const gameId = generateGameId();
+        const game = new Game(gameId);
+        game.p1 = player;
+        gm.addGame(gameId, game);
+        io.to(socket.id).emit('gameId', game.gameId);
         console.log(gm.liveGames);
     })
     
     socket.on("join_game", (gameId)=>{
         const game = gm.getGame(gameId);
-        if(game && (game.p1 == null || game.p2 == null)){
-            console.log(game.p2);
-            game.p2 = socket.id;
+        if(game && (game.p1 == null || game.p2 == null) && game.p1 != player){
+            game.p2 = player;
             io.to(socket.id).emit('connection', 'connection success');
         }
         else{
@@ -31,7 +37,7 @@ module.exports = (io) =>{
 
     socket.on('move', (move, gameId)=>{
         const game = gm.getGame(gameId);
-        if(game.moves.length % 2 == 0 && game.p1 === socket.id){
+        if(game.moves.length % 2 == 0 && game.p1 === player){
             const result = game.makeMove(move);
             console.log(result);
             if(!result.valid){
@@ -42,7 +48,7 @@ module.exports = (io) =>{
                 io.emit('move', moves);
             }
         }
-        else if(game.moves.length % 2 != 0 && game.p2 === socket.id){
+        else if(game.moves.length % 2 != 0 && game.p2 === player){
             const result = game.makeMove(move);
             console.log(result);
             if(!result.valid){
