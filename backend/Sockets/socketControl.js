@@ -1,6 +1,9 @@
 const Game = require('../Classes/Game.js');
 const { v4: uuidv4 } = require('uuid');
 const GameManager = require('../Classes/GameManager.js');
+const { handleCreateGame } = require('../Controllers/Game/createGame.js');
+const { handleJoinGame } = require('../Controllers/Game/joinGame.js');
+const { handleGameState } = require('../Controllers/Game/gameState.js');
 
 const gm = new GameManager();   
 
@@ -13,26 +16,35 @@ module.exports = (io) =>{
     console.log('a user connected');
     const player = socket.handshake.headers.email;
 
-    socket.on("create_game", ()=>{
+    socket.on("create_game", async ()=>{
         const gameId = generateGameId();
         const game = new Game(gameId);
         game.p1 = player;
-        gm.addGame(gameId, game);
-        io.to(socket.id).emit('gameId', game.gameId);
-        console.log(gm.liveGames);
+
+        // Creating game doc in DB
+        try{
+            await handleCreateGame(gameId, player);
+            gm.addGame(gameId, game);
+            io.to(socket.id).emit('gameId', game.gameId);
+            console.log(gm.liveGames);
+        }
+        catch(err){
+            io.to(socket.id).emit('gameUpdates', 'Unable to create game please try again in some time!');
+            socket.disconnect();
+        }
     })
     
-    socket.on("join_game", (gameId)=>{
+    socket.on("join_game", async (gameId)=>{
         const game = gm.getGame(gameId);
-        if(game && (game.p1 == null || game.p2 == null) && game.p1 != player){
+        if(await handleJoinGame(gameId, player)){
             game.p2 = player;
             io.to(socket.id).emit('connection', 'connection success');
+            console.log(gm.liveGames);
         }
         else{
             io.to(socket.id).emit('connection', 'Sorry the game is full!');
             socket.disconnect();
         }
-        console.log(gm.liveGames);
     })
 
     socket.on('move', (move, gameId)=>{
