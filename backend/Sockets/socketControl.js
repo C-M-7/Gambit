@@ -47,32 +47,26 @@ module.exports = (io) =>{
         }
     })
 
-    socket.on('move', (move, gameId)=>{
+    socket.on('move', async (move, gameId)=>{
         const game = gm.getGame(gameId);
-        if(game.moves.length % 2 == 0 && game.p1 === player){
-            const result = game.makeMove(move);
-            console.log(result);
-            if(!result.valid){
-                io.to(socket.id).emit('warning', 'Please make a valid move!');
-            }
-            else{
-                const moves = game.moves.join(',');
-                io.emit('move', moves);
-            }
+        const result = await handleGameState(gameId, player, move, player);
+        // console.log(result);
+        // console.log(move);
+        if(result.status){
+            game.moves.join(',');
+            io.emit('move',game.moves.toString());
         }
-        else if(game.moves.length % 2 != 0 && game.p2 === player){
-            const result = game.makeMove(move);
-            console.log(result);
-            if(!result.valid){
-                io.to(socket.id).emit('warning', 'Please make a valid move!');
+        else{
+            if(result.reason === "GNF"){
+                io.to(socket.id).emit('gameUpdates', 'No such game exists!');
+                socket.disconnect();
             }
-            else{
-                const moves = game.moves.join(',');
-                io.emit('move', moves);
+            else if(result.reason === "MNV"){
+                io.to(socket.id).emit('gameUpdates', 'Please make a valid move');
             }
-        }
-        else {
-            io.to(socket.id).emit('warning', 'wait for your turn');
+            else if(result.reason === "WFT"){
+                io.to(socket.id).emit("gameUpdates", 'Wait for your turn please!');
+            }
         }
     })
 
