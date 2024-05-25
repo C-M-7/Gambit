@@ -4,6 +4,7 @@ const GameManager = require('../Classes/GameManager.js');
 const { handleCreateGame } = require('../Controllers/Game/createGame.js');
 const { handleJoinGame } = require('../Controllers/Game/joinGame.js');
 const { handleGameState } = require('../Controllers/Game/gameState.js');
+const { handleResign } = require('../Controllers/Game/resignGame.js');
 
 const gm = new GameManager();   
 
@@ -49,17 +50,17 @@ module.exports = (io) =>{
 
     socket.on('move', async (move, gameId)=>{
         const game = gm.getGame(gameId);
-        const result = await handleGameState(gameId, player, move, player);
-        // console.log(result);
-        // console.log(move);
+        const result = await handleGameState(gameId, player, move, game);
+        console.log(result);
+        console.log(move);
         if(result.status){
-            game.moves.join(',');
-            io.emit('move',game.moves.toString());
+            const moves = game.moves.join(',');
+            io.emit('move',moves);
         }
         else{
             if(result.reason === "GNF"){
                 io.to(socket.id).emit('gameUpdates', 'No such game exists!');
-                socket.disconnect();
+                // socket.disconnect();
             }
             else if(result.reason === "MNV"){
                 io.to(socket.id).emit('gameUpdates', 'Please make a valid move');
@@ -68,12 +69,28 @@ module.exports = (io) =>{
                 io.to(socket.id).emit("gameUpdates", 'Wait for your turn please!');
             }
         }
+
     })
 
-    // socket.on('end_game', (gameId)=>{
-    //     const game = gm.getGame(gameId);
-
-    // })
+    socket.on('resign', async (gameId)=>{
+        const game = gm.getGame(gameId);
+        const result = await handleResign(gameId, player, game);
+        if(result.status){
+            if(result.reason === 'Draw' || result.reason === 'Stalemate' || result.reason === 'Threefold repetition' || result.reason === 'Insufficient material'){
+                io.emit('gameUpdates', `Game ends via ${result.reason}`);
+            }
+            else{
+                // gm.delete(gameId);
+                io.emit('gameUpdates', `${result.reason} is the Winner`);
+            }
+        }
+        else{
+            if(result.reason === "GNF"){
+                io.to(socket.id).emit('gameUpdates', 'No such game exists!');
+                // socket.disconnect();
+            }
+        }
+    })
 
     socket.on('disconnect', () => {
         console.log('A user disconnected');

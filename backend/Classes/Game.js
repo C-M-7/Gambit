@@ -6,7 +6,9 @@ class Game{
         this.p2 = null;
         this.gameId = gameId;
         this.chess = new Chess();
-        this.moves = [];    
+        this.moves = [];
+        this.gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        this.result = "";    
     }
 
     makeMove(pMove){
@@ -23,6 +25,7 @@ class Game{
         else{
             let gameStatus = 'Move made';
             this.moves.push(pMove);
+            this.gameState = this.chess.fen();
             if (this.chess.isCheckmate()) {
                 gameStatus = 'Checkmate';
             } else if (this.chess.isDraw()) {
@@ -31,7 +34,7 @@ class Game{
                 gameStatus = 'Stalemate';
             } else if (this.chess.isThreefoldRepetition()) {
                 gameStatus = 'Threefold repetition';
-            } else if (this.chess.isInsufficientMaterial()) {
+            } else if (this.chess.isInsufficientMaterial()){
                 gameStatus = 'Insufficient material';
             } else if (this.chess.inCheck()) {
                 gameStatus = 'Check';
