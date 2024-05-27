@@ -6,15 +6,16 @@ const handleGameState = async (gameId, player, move, game) =>{
     try{
         const db = await getDB();
         const currGame = await db.collection('games').findOne({gameId : gameId})
-        console.log(currGame);
-        if(!currGame || !currGame.player1 || !currGame.player2) return {status : false, reason : "GNF"}; // game not found
+
+        if(!currGame || !currGame.player1 || !currGame.player2) return {status : false, reason : "GNF", update: null}; // game not found
         
         if(game.moves.length % 2 === 0 && player === currGame.player1){
             const result = game.makeMove(move);
+            console.log(result.status);
             
             if(!result.valid){
                 // move not valid
-                return {status : false, reason : "MNV"};
+                return {status : false, reason : "MNV", update: 'W'};
             }
             else{
                 if(result.status === 'Checkmate' || result.status==='Draw' || result.status === 'Stalemate' || result.status === 'Threefold repetition' || result.status === 'Insufficient material'){
@@ -23,30 +24,32 @@ const handleGameState = async (gameId, player, move, game) =>{
                 else{
                     await db.collection('games').findOneAndUpdate({gameId : gameId},{$set:{gameState : String(result.fen)}});
                     // state updated successfully
-                    return {status : true, reason : "SUS"};
+                    return {status : true, reason : "SUS", update : 'B'};
                 } 
             }
         }
         else if(game.moves %2 !== 0 && player === currGame.player2){
             const result = game.makeMove(move);
+            console.log(result.status);
+            
             if(!result.valid){
                 // move not valid
-                return {status : false, reason : "MNV"};
+                return {status : false, reason : "MNV", update : 'B'};
             }
             else{
                 if(result.status === 'Checkmate' || result.status==='Draw' || result.status === 'Stalemate' || result.status === 'Threefold repetition' || result.status === 'Insufficient material'){
-                    return handleEndGame(gameId, player, game);
+                    return handleEndGame(gameId, player, game, result.status);
                 }
                 else{
                     await db.collection('games').findOneAndUpdate({gameId : gameId},{$set:{gameState : String(result.fen)}});
                     // state updated successfully
-                    return {status : true, reason : "SUS"};
+                    return {status : true, reason : "SUS", update : 'W'};
                 } 
             }
         }
         else{
             // wait for turn
-            return {status : false, reason : "WFT"};
+            return {status : false, reason : "WFT", update : `${player===currGame.player2} : 'B' ? 'W'`};
         }
     }
     catch(err){

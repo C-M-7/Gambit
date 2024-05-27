@@ -56,6 +56,14 @@ module.exports = (io) =>{
         if(result.status){
             const moves = game.moves.join(',');
             io.emit('move',moves);
+            if(result.reason === 'Draw' || result.reason === 'Stalemate' || result.reason === 'Threefold repetition' || result.reason === 'Insufficient material'){
+                io.emit('gameUpdates', `Game ends via ${result.update}`);
+                // io.disconnect();
+            }
+            else if(result.update === 'Checkmate'){
+                // gm.delete(gameId);
+                io.emit('gameUpdates', `${result.reason} is the Winner via ${result.update}`);
+            }
         }
         else{
             if(result.reason === "GNF"){
@@ -76,13 +84,7 @@ module.exports = (io) =>{
         const game = gm.getGame(gameId);
         const result = await handleResign(gameId, player, game);
         if(result.status){
-            if(result.reason === 'Draw' || result.reason === 'Stalemate' || result.reason === 'Threefold repetition' || result.reason === 'Insufficient material'){
-                io.emit('gameUpdates', `Game ends via ${result.reason}`);
-            }
-            else{
-                // gm.delete(gameId);
-                io.emit('gameUpdates', `${result.reason} is the Winner`);
-            }
+            io.emit('gameUpdates', `The winner of the game is ${game.reason}`);
         }
         else{
             if(result.reason === "GNF"){

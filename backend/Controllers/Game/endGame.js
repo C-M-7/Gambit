@@ -7,11 +7,11 @@ const handleEndGame = async(gameId, player, game, result)=>{
         
         console.log(currGame);
         
-        if(!currGame || !currGame.player1 || !currGame.player2) return {status : false, reason : "GNF"}; // game not found
+        if(!currGame || !currGame.player1 || !currGame.player2) return {status : false, reason : "GNF", update : null}; // game not found
 
         const moves = game.moves.join(',');
         if(result === 'Checkmate'){
-            if(player === currGame.player1) game.result = currGame.player2;
+            if(player === currGame.player2) game.result = currGame.player2;
             else game.result = currGame.player1;
         }
         else{
@@ -24,7 +24,8 @@ const handleEndGame = async(gameId, player, game, result)=>{
         
         return{
             status : true,
-            reason : game.result
+            reason : game.result,
+            update : result 
         }
     }
     catch(err){
