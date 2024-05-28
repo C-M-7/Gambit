@@ -5,6 +5,7 @@ import './index.css'
 import {createBrowserRouter, RouterProvider} from 'react-router-dom'
 import Login from './pages/Login.jsx'
 import Signup from './pages/Signup.jsx'
+import {Toaster} from 'sonner'
 
 const router = createBrowserRouter([
   {
@@ -22,5 +23,9 @@ const router = createBrowserRouter([
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router} />
+  <>
+    <Toaster position="bottom-center"/>
+    <RouterProvider router={router} />
+  </>
+  
 )

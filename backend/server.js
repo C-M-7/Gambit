@@ -1,5 +1,6 @@
 // Importing code
 const express = require('express');
+const cors = require('cors');
 const http = require('http');
 const {Server} = require('socket.io');
 const urlRoute = require('./Routes/route.js');
@@ -14,10 +15,12 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // Middlewares
+app.use(cors());
 app.use(express.urlencoded({extended : true}));
 app.use(express.json());
 
 // Routing code
+
 app.use('/gambit', urlRoute);
 
 // authenticate socket 
