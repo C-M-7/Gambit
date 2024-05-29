@@ -7,6 +7,7 @@ const urlRoute = require('./Routes/route.js');
 const socketControl = require('./Sockets/socketControl.js');
 const { connectToDB } = require('./Configs/mongoConnection.js');
 const { authenticateSocket } = require('./Middlewares/authenticateSocket.js');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 // Initializing Code
@@ -18,6 +19,7 @@ const io = new Server(server);
 app.use(cors());
 app.use(express.urlencoded({extended : true}));
 app.use(express.json());
+app.use(cookieParser());
 
 // Routing code
 

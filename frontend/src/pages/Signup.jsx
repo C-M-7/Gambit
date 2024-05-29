@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import {toast} from 'sonner';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Signup() {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [username, setUsername] = useState('');
     const [mail, setMail] = useState('');
@@ -41,7 +43,10 @@ function Signup() {
                     email : mail,
                     password : password
                 })
-                console.log(response);
+                if(response){
+                    navigate('/signin');
+                    toast.success('User Created Successfully, Now Please SignIn!')
+                }
             }
             catch(err){
                 console.error('Error :', err.response.data);

@@ -113,6 +113,13 @@ const handleSignIn = async (req, res) => {
           { _id: existingUser._id },
           { $set: { loginToken: token.toString() } }
         );
+      
+      res.cookie('token', token,{
+        httpOnly: false,   
+        secure: true,   
+        sameSite: 'strict',
+      });  
+
       existingUser.loginToken = token;
       return res.status(200).json(existingUser);
     } else {

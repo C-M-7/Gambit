@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
+import {toast} from 'sonner';
 
 function Login() {
+  const navigate = useNavigate();
   const [mail, setMail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -26,6 +29,10 @@ function Login() {
                 password : password
             })
             console.log(response);
+            if(response){
+              navigate('/');
+              toast.success('SignIn was successful!');
+            }
         }
         catch(err){
             console.error('Error :', err.response.data);

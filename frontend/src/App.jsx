@@ -1,19 +1,38 @@
 import { useEffect, useState } from "react"
-import Login from "./pages/Login"
-import Signup from "./pages/Signup"
+import {useNavigate} from 'react-router-dom';
+import {toast} from 'sonner';
+import { io } from "socket.io-client";
+import Cookies from 'js-cookie';
 
 function App() {
-  const [message, setMessage] = useState('');
-  
+  const navigate = useNavigate();
+
   useEffect(()=>{
-    fetch('/api/hello')
-    .then(response => response.json())
-    .then(data => setMessage(data.message));
+    const token = Cookies.get('token');
+    console.log(token);
+    if(token){
+      console.log('hi');
+      const socket = io('http://localhost:7000',{
+        extraHeaders: {
+          token: `Bearer ${token}`,
+        }
+      })
+      console.log(socket);
+      socket.on('connect', () => {
+        console.log('Connected to socket server');
+      });
+    }
+    else {
+      toast.warning('Please SignIn before accessing Gambit!');
+      navigate('/signin');
+    }
   },[])
 
   return (
     <>
-      <div>{message}</div>
+      <div>
+        Home Page
+      </div>
     </>
   )
 }
