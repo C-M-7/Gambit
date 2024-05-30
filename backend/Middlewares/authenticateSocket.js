@@ -2,7 +2,8 @@ const jwt = require("jsonwebtoken");
 require('dotenv').config();
 
 const authenticateSocket = (socket, next) =>{
-    const token = socket.handshake.headers.token;
+    
+    const token = socket.handshake.auth.token;
     jwt.verify(
         token,
         String(process.env.jwt_secret_key),

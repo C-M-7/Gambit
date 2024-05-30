@@ -13,7 +13,12 @@ require('dotenv').config();
 // Initializing Code
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server,{
+    cors:{
+        origin:true,
+        credentials:true
+    }
+});
 
 // Middlewares
 app.use(cors());

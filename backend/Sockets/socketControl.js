@@ -96,5 +96,6 @@ module.exports = (io) =>{
 
     socket.on('disconnect', () => {
         console.log('A user disconnected');
+        socket.handshake.auth = "";
     });
 })}

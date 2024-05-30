@@ -6,6 +6,7 @@ import {createBrowserRouter, RouterProvider} from 'react-router-dom'
 import Login from './pages/Login.jsx'
 import Signup from './pages/Signup.jsx'
 import {Toaster} from 'sonner'
+import Playground from './pages/Playground.jsx'
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path : '/signup',
     element : <Signup/>
+  },
+  {
+    path : '/playground',
+    element : <Playground/>
   },
 ])
 

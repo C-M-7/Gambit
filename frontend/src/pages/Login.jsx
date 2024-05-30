@@ -21,6 +21,7 @@ function Login() {
     if(mail === '' || password === ''){
         setMail('');
         setPassword('');
+        toast.error('All fields are mandatory!');
     }
     else{
         try{
