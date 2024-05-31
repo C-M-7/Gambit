@@ -39,11 +39,11 @@ module.exports = (io) =>{
         const game = gm.getGame(gameId);
         if(await handleJoinGame(gameId, player)){
             game.p2 = player;
-            io.to(socket.id).emit('connection', 'connection success');
+            io.to(socket.id).emit('joinId', {status : true, res : 'connection success'});
             console.log(gm.liveGames);
         }
         else{
-            io.to(socket.id).emit('connection', 'Sorry the game is full!');
+            io.to(socket.id).emit('joinId', {status : false, res : 'Sorry the room is full!'});
             socket.disconnect();
         }
     })
