@@ -117,6 +117,7 @@ const handleSignIn = async (req, res) => {
     if (hashedPassword === existingUser.password) {
       const token = jwt.sign(
         {
+          username : existingUser.username,
           email: existingUser.email,
           userId: new ObjectId(existingUser._id),
         },
@@ -134,6 +135,7 @@ const handleSignIn = async (req, res) => {
         httpOnly: false,   
         secure: true,   
         sameSite: 'strict',
+        expires : new Date(Date.now() + (15 * 24 * 60 * 60 * 1000)),
       });  
 
       existingUser.loginToken = token;

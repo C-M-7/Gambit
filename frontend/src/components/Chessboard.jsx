@@ -1,19 +1,21 @@
 import React, { useState } from "react";
+import moveSound from '../utils/Sounds/gambit-capture.mp3'
+// import wrongMoveSound from '../../utils/Sounds/gambit-wrong-move.mp3'
 import { Chess } from "chess.js";
-import Bbishop from '../../utils/Pieces/bishop-b.svg'
-import Wbishop from '../../utils/Pieces/bishop-w.svg'
-import Bking from '../../utils/Pieces/king-b.svg'
-import Wking from '../../utils/Pieces/king-w.svg'
-import Bknight from '../../utils/Pieces/knight-b.svg'
-import Wknight from '../../utils/Pieces/knight-w.svg'
-import Wpawn from '../../utils/Pieces/pawn-w.svg'
-import Bpawn from '../../utils/Pieces/pawn-b.svg'
-import Bqueen from '../../utils/Pieces/queen-b.svg'
-import Wqueen from '../../utils/Pieces/queen-w.svg'
-import Wrook from '../../utils/Pieces/rook-w.svg'
-import Brook from '../../utils/Pieces/rook-b.svg'
+import Bbishop from '../utils/Pieces/bishop-b.svg'
+import Wbishop from '../utils/Pieces/bishop-w.svg'
+import Bking from '../utils/Pieces/king-b.svg'
+import Wking from '../utils/Pieces/king-w.svg'
+import Bknight from '../utils/Pieces/knight-b.svg'
+import Wknight from '../utils/Pieces/knight-w.svg'
+import Wpawn from '../utils/Pieces/pawn-w.svg'
+import Bpawn from '../utils/Pieces/pawn-b.svg'
+import Bqueen from '../utils/Pieces/queen-b.svg'
+import Wqueen from '../utils/Pieces/queen-w.svg'
+import Wrook from '../utils/Pieces/rook-w.svg'
+import Brook from '../utils/Pieces/rook-b.svg'
 
-function Chessboard() {
+function Chessboard({color, socket}) {
   const [game, setGame] = useState(new Chess());
   const [position, setPosition] = useState(game.fen());
   const [selectedSq, setSelectedSq] = useState(null);
@@ -36,23 +38,22 @@ function Chessboard() {
   const handleSqClick = (row, col) => {
     const square = String.fromCharCode(97 + col) + (8 - row);
     if (selectedSq) {
-      console.log("1");
       try {
         const move = game.move({
           from: selectedSq,
           to: square,
           promotion: "q",
         });
-        console.log("3");
         if (move) {
           setPosition(game.fen());
+          new Audio(moveSound).play();
           setSelectedSq(null);
         }
       } catch (err) {
+        // new Audio(wrongMoveSound).play();
         setSelectedSq(null);
       }
     } else {
-      console.log("2");
       setSelectedSq(square);
     }
   };
@@ -62,6 +63,7 @@ function Chessboard() {
     const sqColor = isBlack ? "bg-gray-600" : "bg-gray-300";
     const square = String.fromCharCode(97 + col) + (8 - row);
     const piece = game.get(square);
+    // const isSelected = square === selectedSq;
 
     return (
       <div
@@ -70,7 +72,7 @@ function Chessboard() {
         onClick={() => handleSqClick(row, col)}
       >
         {piece && (
-          <span className="text-2xl">
+          <span className="">
             {
               pieceUnicode[
                 piece.color === "w" ? piece.type.toUpperCase() : piece.type
