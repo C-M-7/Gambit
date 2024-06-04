@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import {toast} from 'sonner';
@@ -7,6 +7,10 @@ function Login() {
   const navigate = useNavigate();
   const [mail, setMail] = useState('');
   const [password, setPassword] = useState('');
+
+  // useEffect(()=>{
+
+  // })
 
   const handleMail = (event) =>{
       setMail(event.target.value);
@@ -31,7 +35,7 @@ function Login() {
             })
             console.log(response);
             if(response){
-              navigate('/');
+              navigate('/home');
               toast.success('SignIn was successful!');
             }
         }

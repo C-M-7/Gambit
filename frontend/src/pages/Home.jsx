@@ -11,36 +11,43 @@ function Home() {
     const [gameId, setGameId] = useState('');
     const navigate = useNavigate();
   
-    useEffect(()=>{
-      const token = Cookies.get('token');
-      if(token){  
-        const socketInstance = io('http://localhost:7000',{
-          auth: {
-            token: token,
-          }
-        })
-        setSocket(socketInstance);
-  
-        socketInstance.on('connect', () => {
-          console.log('Connected to socketInstance server');
-        });
-  
-        socketInstance.on('disconnect',()=>{
-          // Cookies.remove("token");
-          socketInstance.disconnect();
-          console.log("user disconnected from server")
-        });
-        
-        return () =>{
-          socketInstance.off('connect');
-          socketInstance.off('disconnect');
-        }
-      }
-      else {
-        toast.warning('Please SignIn before accessing Gambit!');
-        navigate('/signin');
-      }
-    },[navigate])
+    // useEffect(()=>{
+    //   const token = Cookies.get('token');
+    //   if(token){  
+    //     try{
+    //       const socketInstance = io('http://localhost:7000',{
+    //         auth: {
+    //           token: token,
+    //         }
+    //       })
+    //       console.log(socketInstance);
+    //       setSocket(socketInstance);
+
+    //       socketInstance.on('connect', () => {
+    //         console.log('Connected to socketInstance server');
+    //       });
+
+    //       socketInstance.on('disconnect',()=>{
+    //         // Cookies.remove("token");
+    //         socketInstance.disconnect();
+    //         console.log("user disconnected from server")
+    //       });
+          
+    //       return () =>{
+    //         socketInstance.off('connect');
+    //         socketInstance.off('disconnect');
+    //       }
+    //     }
+    //     catch(err){
+    //       toast.warning('Please SignIn before accessing Gambit!');
+    //       navigate('/signin');
+    //     }
+    //   }
+    //   else{
+    //     toast.warning('Please SignIn before accessing Gambit!');
+    //     navigate('/signin');
+    //   }
+    // },[])
   
     // Create Game Logic
     const handleClientCreateGame = () =>{

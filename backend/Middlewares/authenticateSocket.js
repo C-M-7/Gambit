@@ -13,7 +13,7 @@ const authenticateSocket = (socket, next) =>{
             next();
         }
     )
-}
+} 
 
 
 module.exports = {

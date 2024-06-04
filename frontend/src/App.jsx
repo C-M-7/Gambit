@@ -1,53 +1,46 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login.jsx";
-import Signup from "./pages/Signup.jsx";
-import Playground from "./pages/Playground.jsx";
 import Home from "./pages/Home.jsx";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import axios from "axios";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-
-const router = createBrowserRouter([
-  {
-    path: "/home",
-    element: <Home />,
-  },
-  {
-    path: "/signin",
-    element: <Login />,
-  },
-  {
-    path: "/signup",
-    element: <Signup />,
-  },
-  {
-    path: "/playground",
-    element: <Playground />,
-  },
-]);
+import { useDispatch, useSelector } from "react-redux";
+import { setUserDetails } from "./redux/slices/UserDetails.jsx";
 
 function App() {
   console.log("app");
   const dispatch = useDispatch();
-  const [socket, setSocket] = useState(null);
+  const userData = useSelector((state) => state.UserDetails);
 
-  useEffect(()=>{
-    const token = Cookies.get('token');
-    if(token){
-      const socketInstance = io('http://localhost:7000',{
-        auth: {
-          token: token,
-        }
-      })
-      
-    }
-    else{
-      toast.warning('Please SignIn before accessing Gambit!');
-      navigate('/signin');
-    }
-  })
+  const getUserInfo = async (token) => {
+    try {
+      const response = await axios.get("/gambit/userinfo/", {
+        token: token,
+      });
+      console.log(response);
+      if (response.status) {
+        dispatch(setUserDetails(response.user));
+      }
+    } catch (err) {}
+  };
 
-  return <RouterProvider router={router} />;
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      getUserInfo(token);
+    }
+  }, []);
+
+  return (
+    <>
+      <Routes>
+        <Route to='/' element={<Home/>}/>
+        <Route to='/signin' element={<Login/>}/>
+        <Route path="/" element={userData ? <Navigate to='/'/> : <Navigate to='/signin'/>}/>
+      </Routes>
+        
+    </>
+  );
 }
 
 export default App;
