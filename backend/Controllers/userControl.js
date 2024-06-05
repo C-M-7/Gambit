@@ -1,9 +1,20 @@
 const { getDB } = require("../Configs/mongoConnection");
+const jwt = require("jsonwebtoken");
+require('dotenv').config();
 
 const handleUserInfo = async(req, res) =>{
     try{
         const db = await getDB();
-        const {token} = req.body();
+        const {token} = req.body;
+        
+
+        jwt.verify(
+            token,
+            String(process.env.jwt_secret_key),
+            (err)=>{
+                if(err) return res.status(403).json({status : false, status_code : 403, message : "Invalid Token"});
+            }
+        );
         
         const user = await db.collection("users").findOne({loginToken : token});
 
