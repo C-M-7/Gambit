@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import SocketContext from '../redux/SocketContext';
 import moveSound from '../utils/Sounds/gambit-capture.mp3'
+import Cookies from 'js-cookie';
 // import wrongMoveSound from '../../utils/Sounds/gambit-wrong-move.mp3'
 import { Chess } from "chess.js";
 import Bbishop from '../utils/Pieces/bishop-b.svg'
@@ -15,11 +17,24 @@ import Wqueen from '../utils/Pieces/queen-w.svg'
 import Wrook from '../utils/Pieces/rook-w.svg'
 import Brook from '../utils/Pieces/rook-b.svg'
 
-function Chessboard({color, socket}) {
+function Chessboard({color}) {
   const [game, setGame] = useState(new Chess());
   const [position, setPosition] = useState(game.fen());
   const [selectedSq, setSelectedSq] = useState(null);
+  const {socketContext} = useContext(SocketContext); 
 
+  
+  useEffect(()=>{
+    const token = Cookies.get('token');
+    if(token){
+      
+    }
+    else{
+      toast.error('Token not found! Please SigIn again!')
+      navigate('/signin');
+    }
+  },[])
+  
   const pieceUnicode = {
     p: <img src={Bpawn}/>,
     r: <img src={Brook}/>,
@@ -36,7 +51,7 @@ function Chessboard({color, socket}) {
   };
 
   const handleSqClick = (row, col) => {
-    const square = String.fromCharCode(97 + col) + (8 - row);
+    const square = color === 'w' ? String.fromCharCode(97 + col) + (8 - row) : String.fromCharCode(104 - col) + (row + 1);
     if (selectedSq) {
       try {
         const move = game.move({
@@ -61,7 +76,7 @@ function Chessboard({color, socket}) {
   const createSquare = (row, col) => {
     const isBlack = (row + col) % 2 === 1;
     const sqColor = isBlack ? "bg-gray-600" : "bg-gray-300";
-    const square = String.fromCharCode(97 + col) + (8 - row);
+    const square = color === 'w' ? String.fromCharCode(97 + col) + (8 - row) : String.fromCharCode(104 - col) + (row + 1);
     const piece = game.get(square);
     // const isSelected = square === selectedSq;
 

@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { SocketProvider } from "./redux/SocketContext.jsx";
 import Login from "./pages/Login.jsx";
 import Home from "./pages/Home.jsx";
 import Cookies from "js-cookie";
@@ -45,12 +46,14 @@ function App() {
   
   return (
     <>
+    <SocketProvider>
       <Routes>
         <Route path="/signin" element={<Login/>}/>
         <Route path="/home" element={<Home/>}/>
         <Route path="/" element={!isUser ? <Navigate to='/signin'/> : <Navigate to='/home'/>}/>
         <Route path="/playground" element={<Playground/>}/>
       </Routes>
+    </SocketProvider>
     </>
   );
 }

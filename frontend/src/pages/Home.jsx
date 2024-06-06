@@ -1,4 +1,5 @@
-import React,{ useEffect, useState } from "react"
+import React,{ useContext, useEffect, useState } from "react"
+import SocketContext from "../redux/SocketContext";
 import {useNavigate} from 'react-router-dom';
 import {toast} from 'sonner';
 import { io } from "socket.io-client";
@@ -7,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setGameDetails } from "../redux/slices/GameDetails";
 
 function Home() {
+    const {setSocketContext} = useContext(SocketContext)
     const [user, setUser] = useState({});
     const [socket, setSocket] = useState(null);
     const [joinId, setJoinId] = useState('');
@@ -27,6 +29,7 @@ function Home() {
           })
           console.log(socketInstance);
           setSocket(socketInstance);
+          setSocketContext(socketInstance);
           
           socketInstance.on('connect', () => {
             console.log('Connected to socketInstance server');
@@ -106,7 +109,7 @@ function Home() {
         socket.on('joinId', (response)=>{
           if(response.status){
             dispatch(setGameDetails({
-              gameId : joinId,
+              gameId : response.res,
               color : 'b'
             }))
             navigate('/playground');
