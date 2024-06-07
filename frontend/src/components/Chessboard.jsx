@@ -16,24 +16,50 @@ import Bqueen from '../utils/Pieces/queen-b.svg'
 import Wqueen from '../utils/Pieces/queen-w.svg'
 import Wrook from '../utils/Pieces/rook-w.svg'
 import Brook from '../utils/Pieces/rook-b.svg'
+import {toast} from 'sonner';
+import { useSelector } from "react-redux";
 
 function Chessboard({color}) {
   const [game, setGame] = useState(new Chess());
   const [position, setPosition] = useState(game.fen());
+  const [lastmove, setLastMove] = useState(null);
   const [selectedSq, setSelectedSq] = useState(null);
-  const {socketContext} = useContext(SocketContext); 
+  const {gameId} = useSelector((state) => state.GameDetails);
+  const {socketContext} = useContext(SocketContext);
+  
+  useEffect(()=>{
+    if(socketContext){
+      socketContext.on('move', (fen)=>{
+        console.log(fen);
+        setPosition(fen);
+      })
+      return ()=>{
+        socketContext.off('move');
+      }
+    }
+  },[socketContext])  
 
+  useEffect(()=>{
+    if(socketContext){
+      socketContext.on('gameUpdates', (update)=>{
+        toast.error(update);
+      })
+      return ()=>{
+        socketContext.off('gameUpdates');
+      }
+    }
+  },[socketContext])  
   
   useEffect(()=>{
     const token = Cookies.get('token');
     if(token){
-      
+      socketContext.emit('move', position, gameId, token);
     }
     else{
       toast.error('Token not found! Please SigIn again!')
       navigate('/signin');
     }
-  },[])
+  },[position])
   
   const pieceUnicode = {
     p: <img src={Bpawn}/>,

@@ -5,14 +5,29 @@ const { handleCreateGame } = require('../Controllers/Game/createGame.js');
 const { handleJoinGame } = require('../Controllers/Game/joinGame.js');
 const { handleGameState } = require('../Controllers/Game/gameState.js');
 const { handleResign } = require('../Controllers/Game/resignGame.js');
-
 const gm = new GameManager();   
+const jwt = require("jsonwebtoken");
+require('dotenv').config();
 
 const generateGameId = () =>{
     return uuidv4();
 }
 
 module.exports = (io) =>{ 
+    const authenticateToken = (socket, token, callback) =>{
+        jwt.verify(
+            token,
+            String(process.env.jwt_secret_key),
+            (err)=>{
+                if(err) {
+                    console.log(err)
+                    callback(false);
+                }
+                callback(true);
+            }
+        )
+    }
+
     io.on('connection', (socket)=>{
     console.log('a user connected');
     const player = socket.handshake.headers.email;
@@ -48,36 +63,43 @@ module.exports = (io) =>{
         }
     })
 
-    socket.on('move', async (move, gameId)=>{
-        const game = gm.getGame(gameId);
-        const result = await handleGameState(gameId, player, move, game);
-        console.log(result);
-        console.log(move);
-        if(result.status){
-            const moves = game.moves.join(',');
-            io.emit('move',moves);
-            if(result.reason === 'Draw' || result.reason === 'Stalemate' || result.reason === 'Threefold repetition' || result.reason === 'Insufficient material'){
-                io.emit('gameUpdates', `Game ends via ${result.update}`);
-                // io.disconnect();
+    socket.on('move', async (fen, gameId, token)=>{
+        authenticateToken(socket, token, async (isValid) =>{
+            if(isValid){
+                const game = gm.getGame(gameId);
+                const result = await handleGameState(gameId, player, fen, game);
+                console.log(result);
+                if(result.status){
+                    io.emit('move',fen);
+                    if(result.reason === 'Draw' || result.reason === 'Stalemate' || result.reason === 'Threefold repetition' || result.reason === 'Insufficient material'){
+                        io.emit('gameUpdates', `Game ends via ${result.update}`);
+                        // io.disconnect();
+                    }
+                    else if(result.update === 'Checkmate'){
+                        // gm.delete(gameId);
+                        io.emit('gameUpdates', `${result.reason} is the Winner via ${result.update}`);
+                    }
+                }
+                else{
+                    if(result.reason === "GNF"){
+                        io.to(socket.id).emit('gameUpdates', 'No such game exists!');
+                        // socket.disconnect();
+                    }
+                    else if(result.reason === "MNV"){
+                        io.to(socket.id).emit('gameUpdates', 'Please make a valid move');
+                    }
+                    else if(result.reason === "WFT"){
+                        io.to(socket.id).emit("gameUpdates", 'Wait for your turn please!');
+                    }
+                    else if(result.reason === 'GC'){
+                        io.to(socket.id).emit("gameUpdates", 'Gambit Created');
+                    }
+                }
             }
-            else if(result.update === 'Checkmate'){
-                // gm.delete(gameId);
-                io.emit('gameUpdates', `${result.reason} is the Winner via ${result.update}`);
-            }
-        }
-        else{
-            if(result.reason === "GNF"){
-                io.to(socket.id).emit('gameUpdates', 'No such game exists!');
-                // socket.disconnect();
-            }
-            else if(result.reason === "MNV"){
-                io.to(socket.id).emit('gameUpdates', 'Please make a valid move');
-            }
-            else if(result.reason === "WFT"){
-                io.to(socket.id).emit("gameUpdates", 'Wait for your turn please!');
-            }
-        }
-
+            else{
+                io.to(socket.id).emit('gameUpdates', 'Invalid Token!');
+            }   
+        })
     })
 
     socket.on('resign', async (gameId)=>{

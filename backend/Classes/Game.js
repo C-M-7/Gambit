@@ -1,4 +1,5 @@
 const {Chess} = require('chess.js');
+import { validateFen } from 'chess.js'
 
 class Game{
     constructor(gameId){
@@ -11,21 +12,15 @@ class Game{
         this.result = "";    
     }
 
-    makeMove(pMove){
-        let result;
-        try{
-            result = this.chess.move(pMove);
-        }
-        catch(error){
-            result = null;
-        }
-        if(result === null){
+    makeMove(fen){
+        const result = validateFen(fen);
+        if(!result.ok){
             return {valid : false, status : 'Invalid Move', pgn : this.chess.pgn()};
         }
         else{
             let gameStatus = 'Move made';
-            this.moves.push(pMove);
-            this.gameState = this.chess.fen();
+            // this.moves.push(pMove);
+            this.gameState = fen;
             if (this.chess.isCheckmate()) {
                 gameStatus = 'Checkmate';
             } else if (this.chess.isDraw()) {
