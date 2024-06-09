@@ -14,7 +14,7 @@ const generateGameId = () =>{
 }
 
 module.exports = (io) =>{ 
-    const authenticateToken = (socket, token, callback) =>{
+    const authenticateToken = (token, callback) =>{
         jwt.verify(
             token,
             String(process.env.jwt_secret_key),
@@ -31,12 +31,13 @@ module.exports = (io) =>{
     io.on('connection', (socket)=>{
     console.log('a user connected');
     const player = socket.handshake.headers.email;
+    const token = socket.handshake.auth.token;
 
     socket.on("create_game", async ()=>{
         const gameId = generateGameId();
         const game = new Game(gameId);
         game.p1 = player;
-
+        game.socket1 = socket.id;
         // Creating game doc in DB
         try{
             await handleCreateGame(gameId, player);
@@ -54,6 +55,7 @@ module.exports = (io) =>{
         const game = gm.getGame(gameId);
         if(await handleJoinGame(gameId, player)){
             game.p2 = player;
+            game.socket2 = socket.id;
             io.to(socket.id).emit('joinId', {status : true, res : gameId});
             console.log(gm.liveGames);
         }
@@ -63,14 +65,20 @@ module.exports = (io) =>{
         }
     })
 
-    socket.on('move', async (fen, gameId, token)=>{
-        authenticateToken(socket, token, async (isValid) =>{
+    socket.on('move', async (fen, lastmove, gameId)=>{
+        console.log(lastmove);
+        authenticateToken(token, async (isValid) =>{
             if(isValid){
                 const game = gm.getGame(gameId);
-                const result = await handleGameState(gameId, player, fen, game);
-                console.log(result);
+                const result = await handleGameState(gameId, player, fen, game, lastmove);
+
                 if(result.status){
-                    io.emit('move',fen);
+                    if(socket.id === game.socket1) {
+                        io.to(game.socket2).emit('oppMove',fen,lastmove);
+                    }
+                    else {
+                        io.to(game.socket1).emit('oppMove', fen,lastmove);
+                    }
                     if(result.reason === 'Draw' || result.reason === 'Stalemate' || result.reason === 'Threefold repetition' || result.reason === 'Insufficient material'){
                         io.emit('gameUpdates', `Game ends via ${result.update}`);
                         // io.disconnect();

@@ -1,25 +1,28 @@
 const {Chess} = require('chess.js');
-import { validateFen } from 'chess.js'
+const { validateFen } =  require('chess.js');
 
 class Game{
     constructor(gameId){
         this.p1 = null;
         this.p2 = null;
+        this.socket1 = null;
+        this.socket2 = null;
         this.gameId = gameId;
         this.chess = new Chess();
         this.moves = [];
-        this.gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        this.gameState = this.chess.fen();
         this.result = "";    
     }
 
-    makeMove(fen){
+    makeMove(fen, lastmove){
         const result = validateFen(fen);
         if(!result.ok){
             return {valid : false, status : 'Invalid Move', pgn : this.chess.pgn()};
         }
         else{
             let gameStatus = 'Move made';
-            // this.moves.push(pMove);
+            this.moves.push(lastmove);
+            this.chess.move(lastmove);
             this.gameState = fen;
             if (this.chess.isCheckmate()) {
                 gameStatus = 'Checkmate';

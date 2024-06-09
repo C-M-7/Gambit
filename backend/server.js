@@ -39,6 +39,5 @@ connectToDB(mongo_uri).then(() => console.log("MongoDB Connected"));
 
 // Initializing the game code(Socket.io)
 socketControl(io); 
-
   
 server.listen(7000, () => console.log("server started at 7000"));

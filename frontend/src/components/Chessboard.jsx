@@ -26,18 +26,19 @@ function Chessboard({color}) {
   const [selectedSq, setSelectedSq] = useState(null);
   const {gameId} = useSelector((state) => state.GameDetails);
   const {socketContext} = useContext(SocketContext);
-  
+
+  const handleBoard = (fen, oppLastMove) =>{
+    console.log('hi');
+    setGame(new Chess(fen));
+    setPosition(fen);
+    sessionStorage.setItem(`${color==='w'?'b':'w'}`,JSON.stringify({moveMade : oppLastMove, fen: fen}));
+  }
+
+  // SOCKETS 
   useEffect(()=>{
-    if(socketContext){
-      socketContext.on('move', (fen)=>{
-        console.log(fen);
-        setPosition(fen);
-      })
-      return ()=>{
-        socketContext.off('move');
-      }
-    }
-  },[socketContext])  
+    console.log('hello');
+    socketContext.on('oppMove', (fen, oppLastMove)=>handleBoard(fen, oppLastMove))
+  },[socketContext,game,position])  
 
   useEffect(()=>{
     if(socketContext){
@@ -51,16 +52,10 @@ function Chessboard({color}) {
   },[socketContext])  
   
   useEffect(()=>{
-    const token = Cookies.get('token');
-    if(token){
-      socketContext.emit('move', position, gameId, token);
-    }
-    else{
-      toast.error('Token not found! Please SigIn again!')
-      navigate('/signin');
-    }
+    socketContext.emit('move', position, lastmove, gameId);
   },[position])
-  
+
+  // BOARD LOGIC
   const pieceUnicode = {
     p: <img src={Bpawn}/>,
     r: <img src={Brook}/>,
@@ -86,8 +81,12 @@ function Chessboard({color}) {
           promotion: "q",
         });
         if (move) {
-          setPosition(game.fen());
+          console.log(move.san);
           new Audio(moveSound).play();
+          setGame(new Chess(game.fen()));
+          setPosition(game.fen());
+          setLastMove(move.san);
+          sessionStorage.setItem(`${color}`, JSON.stringify({moveMade : lastmove, fen: position}));
           setSelectedSq(null);
         }
       } catch (err) {
@@ -135,7 +134,10 @@ function Chessboard({color}) {
     return board;
   };
 
-  return <div className="grid grid-cols-8 shadow-lg">{createBoard()}</div>;
-}
+  return (
+    <>
+  <div className="grid grid-cols-8 shadow-lg">{createBoard()}</div>
+    </>
+)};
 
 export default Chessboard;

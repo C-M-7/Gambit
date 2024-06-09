@@ -1,18 +1,41 @@
 import React, { useContext, useEffect, useState } from 'react';
 import SocketContext from '../redux/SocketContext';
 import Chessboard from '../components/Chessboard';
+import Cookies from 'js-cookie';
 import { useSelector } from 'react-redux';
+import axios from "axios";
 
 function Playground() {
   const [loading, setLoading] = useState(true);
   const playerData = useSelector((state) => state.GameDetails);
-  const {socketContext} = useContext(SocketContext); 
 
-  useEffect(()=>{
-    if(playerData){
-      setLoading(false);
+  const getUserInfo = async (token, playerData) => {
+    try {
+      const response = await axios.post("/gambit/userinfo", {
+        token : token
+      });
+      if (response.data.status && playerData.username === response.data.user.username && playerData.name === response.data.user.name && playerData.email === response.data.user.email) {
+        setLoading(false);
+      }
+    } catch (err) {
+      console.log(err.message)
+    }finally {
+      setLoading(false); 
     }
-  },[playerData])
+  };
+
+  useEffect(() => {
+    if(playerData){
+      const token = Cookies.get("token");
+      if (token) {
+        getUserInfo(token, playerData);
+      }else{
+        toast.error('Token not found! Please SigIn again!')
+        navigate('/signin');
+      }
+    }
+  }, [playerData]);
+
 
   if(loading){
     return(<div>isLoading...</div>)
