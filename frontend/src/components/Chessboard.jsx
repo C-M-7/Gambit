@@ -18,26 +18,62 @@ import Wrook from '../utils/Pieces/rook-w.svg'
 import Brook from '../utils/Pieces/rook-b.svg'
 import {toast} from 'sonner';
 import { useSelector } from "react-redux";
+import {RuleBook} from "./RuleBook";
+import axios from 'axios';
 
 function Chessboard({color}) {
   const [game, setGame] = useState(new Chess());
   const [position, setPosition] = useState(game.fen());
-  const [lastmove, setLastMove] = useState(null);
   const [selectedSq, setSelectedSq] = useState(null);
   const {gameId} = useSelector((state) => state.GameDetails);
+  const {email} = useSelector((state) => state.UserDetails);
   const {socketContext} = useContext(SocketContext);
 
-  const handleBoard = (fen, oppLastMove) =>{
-    console.log('hi');
-    setGame(new Chess(fen));
-    setPosition(fen);
-    sessionStorage.setItem(`${color==='w'?'b':'w'}`,JSON.stringify({moveMade : oppLastMove, fen: fen}));
+  // HANDLING INCOMING MOVES
+  const handleBoard = (fen) =>{
+    const result = RuleBook(fen);
+    if(!result.valid){
+      toast.error(result.status);
+    }else{
+      const newGame = new Chess(fen);
+      setGame(newGame);
+      sessionStorage.setItem(`${color==='b'?'w':'b'}`, JSON.stringify(game));
+      if(result.status==='DRAW' || result.status === 'STALEMATE' || result.status === 'TFR' || result.status === 'ISM'){
+        toast.error("The Game draws!");
+      }
+      else if(result.status === 'CHECK'){
+        toast.error("You are in Check!");
+      }
+      else if(result.status === 'CHECKMATE'){
+        toast.error(`Its a checkmate, ${result.turn === 'b' ? 'w' : 'b'} wins!`)
+        try{
+          const response = await axios.post('/gambit/',{
+            gameId : gameId,
+            player : email,
+            result : 
+          })
+        }
+        catch(err){
+
+        }
+      }
+    }
   }
+
+  // ON LOADING NEW/OLD GAME
+  useEffect(()=>{
+    if(sessionStorage.length > 0 && (sessionStorage.key(sessionStorage.length - 1) === 'w' || sessionStorage.key(sessionStorage.length - 1) === 'b')){
+      var lastKey = sessionStorage.key(sessionStorage.length - 1);
+      var lastGame = JSON.parse(sessionStorage.getItem(lastKey));
+      const newGame = new Chess(lastGame.fen());
+      lastGame.history().forEach(move => newGame.move(move));
+      setGame(newGame);
+    }
+  },[])
 
   // SOCKETS 
   useEffect(()=>{
-    console.log('hello');
-    socketContext.on('oppMove', (fen, oppLastMove)=>handleBoard(fen, oppLastMove))
+    socketContext.on('oppMove', (fen)=>handleBoard(fen))
   },[socketContext,game,position])  
 
   useEffect(()=>{
@@ -52,7 +88,13 @@ function Chessboard({color}) {
   },[socketContext])  
   
   useEffect(()=>{
-    socketContext.emit('move', position, lastmove, gameId);
+    if(game.history().length > 0){
+      const hist = game.history();
+      const lastmove = hist[hist.length-1];
+      socketContext.emit('move', game.fen(), lastmove, gameId);
+    }else{
+      socketContext.emit('move', game.fen(), '', gameId);
+    }
   },[position])
 
   // BOARD LOGIC
@@ -72,31 +114,40 @@ function Chessboard({color}) {
   };
 
   const handleSqClick = (row, col) => {
-    const square = color === 'w' ? String.fromCharCode(97 + col) + (8 - row) : String.fromCharCode(104 - col) + (row + 1);
-    if (selectedSq) {
-      try {
-        const move = game.move({
-          from: selectedSq,
-          to: square,
-          promotion: "q",
-        });
-        if (move) {
-          console.log(move.san);
-          new Audio(moveSound).play();
-          setGame(new Chess(game.fen()));
-          setPosition(game.fen());
-          setLastMove(move.san);
-          sessionStorage.setItem(`${color}`, JSON.stringify({moveMade : lastmove, fen: position}));
+    // if(){
+    if(color !== game.turn()){
+      toast.error("Please wait for your turn!");
+      setSelectedSq(null);
+    }
+    else{
+      const square = color === 'w' ? String.fromCharCode(97 + col) + (8 - row) : String.fromCharCode(104 - col) + (row + 1);
+      if (selectedSq) {
+        try {
+          const move = game.move({
+            from: selectedSq,
+            to: square,
+            promotion: "q",
+          });
+          if (move) {
+            console.log(move.san);
+            new Audio(moveSound).play();
+            setGame(new Chess(game.fen()));
+            setPosition(game.fen());
+            sessionStorage.setItem(`${color}`, JSON.stringify(game));
+            setSelectedSq(null);
+          }
+        } catch (err) {
+          // new Audio(wrongMoveSound).play();
           setSelectedSq(null);
         }
-      } catch (err) {
-        // new Audio(wrongMoveSound).play();
-        setSelectedSq(null);
+      } else {
+        setSelectedSq(square);
       }
-    } else {
-      setSelectedSq(square);
     }
-  };
+  // }else{
+  //   selectedSq(null);
+  // }
+};
 
   const createSquare = (row, col) => {
     const isBlack = (row + col) % 2 === 1;

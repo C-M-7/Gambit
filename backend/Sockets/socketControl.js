@@ -3,7 +3,6 @@ const { v4: uuidv4 } = require('uuid');
 const GameManager = require('../Classes/GameManager.js');
 const { handleCreateGame } = require('../Controllers/Game/createGame.js');
 const { handleJoinGame } = require('../Controllers/Game/joinGame.js');
-const { handleGameState } = require('../Controllers/Game/gameState.js');
 const { handleResign } = require('../Controllers/Game/resignGame.js');
 const gm = new GameManager();   
 const jwt = require("jsonwebtoken");
@@ -65,43 +64,18 @@ module.exports = (io) =>{
         }
     })
 
-    socket.on('move', async (fen, lastmove, gameId)=>{
-        console.log(lastmove);
+    socket.on('move', async (currFen, lastmove, gameId)=>{
         authenticateToken(token, async (isValid) =>{
             if(isValid){
                 const game = gm.getGame(gameId);
-                const result = await handleGameState(gameId, player, fen, game, lastmove);
-
-                if(result.status){
-                    if(socket.id === game.socket1) {
-                        io.to(game.socket2).emit('oppMove',fen,lastmove);
-                    }
-                    else {
-                        io.to(game.socket1).emit('oppMove', fen,lastmove);
-                    }
-                    if(result.reason === 'Draw' || result.reason === 'Stalemate' || result.reason === 'Threefold repetition' || result.reason === 'Insufficient material'){
-                        io.emit('gameUpdates', `Game ends via ${result.update}`);
-                        // io.disconnect();
-                    }
-                    else if(result.update === 'Checkmate'){
-                        // gm.delete(gameId);
-                        io.emit('gameUpdates', `${result.reason} is the Winner via ${result.update}`);
-                    }
+                if(lastmove){ 
+                    game.chess.move(lastmove);
                 }
-                else{
-                    if(result.reason === "GNF"){
-                        io.to(socket.id).emit('gameUpdates', 'No such game exists!');
-                        // socket.disconnect();
-                    }
-                    else if(result.reason === "MNV"){
-                        io.to(socket.id).emit('gameUpdates', 'Please make a valid move');
-                    }
-                    else if(result.reason === "WFT"){
-                        io.to(socket.id).emit("gameUpdates", 'Wait for your turn please!');
-                    }
-                    else if(result.reason === 'GC'){
-                        io.to(socket.id).emit("gameUpdates", 'Gambit Created');
-                    }
+                if(socket.id === game.socket1) {
+                    io.to(game.socket2).emit('oppMove',currFen);
+                }
+                else {
+                    io.to(game.socket1).emit('oppMove', currFen);
                 }
             }
             else{

@@ -1,11 +1,12 @@
 const { getDB } = require("../../Configs/mongoConnection");
+const Game = require('../Classes/Game.js');
+const GameManager = require('../Classes/GameManager.js');
 
-const handleEndGame = async(gameId, player, game, result)=>{
+const handleEndGame = async(req, res)=>{
     try{
+        const {gameId, player, result} = req.body();
         const db = await getDB();
         const currGame = await db.collection('games').findOne({gameId : gameId})
-        
-        console.log(currGame);
         
         if(!currGame || !currGame.player1 || !currGame.player2) return {status : false, reason : "GNF", update : null}; // game not found
 

@@ -9,8 +9,8 @@ class Game{
         this.socket2 = null;
         this.gameId = gameId;
         this.chess = new Chess();
-        this.moves = [];
-        this.gameState = this.chess.fen();
+        // this.moves = [];
+        // this.gameState = this.chess.fen();
         this.result = "";    
     }
 
@@ -20,10 +20,10 @@ class Game{
             return {valid : false, status : 'Invalid Move', pgn : this.chess.pgn()};
         }
         else{
+            // this.moves.push(lastmove);
+            // this.gameState = fen;
             let gameStatus = 'Move made';
-            this.moves.push(lastmove);
             this.chess.move(lastmove);
-            this.gameState = fen;
             if (this.chess.isCheckmate()) {
                 gameStatus = 'Checkmate';
             } else if (this.chess.isDraw()) {
