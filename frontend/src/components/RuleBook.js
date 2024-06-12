@@ -10,10 +10,10 @@ export function RuleBook(fen) {
     }
     else{
       let status = 'MOVE';
-      if(chess.inCheck()){
-        status = 'CHECK';
-      }else if(chess.isCheckmate()){
+      if(chess.isCheckmate()){
         status = 'CHECKMATE';
+      }else if(chess.inCheck()){
+        status = 'CHECK';
       }else if(chess.isDraw()){
         status = 'DRAW';
       }else if(chess.isStalemate()){

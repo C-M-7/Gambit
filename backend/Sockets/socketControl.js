@@ -6,6 +6,7 @@ const { handleJoinGame } = require('../Controllers/Game/joinGame.js');
 const { handleResign } = require('../Controllers/Game/resignGame.js');
 const gm = new GameManager();   
 const jwt = require("jsonwebtoken");
+const { handleEndGame } = require('../Controllers/Game/endGame.js');
 require('dotenv').config();
 
 const generateGameId = () =>{
@@ -35,8 +36,8 @@ module.exports = (io) =>{
     socket.on("create_game", async ()=>{
         const gameId = generateGameId();
         const game = new Game(gameId);
+        socket.join(gameId);
         game.p1 = player;
-        game.socket1 = socket.id;
         // Creating game doc in DB
         try{
             await handleCreateGame(gameId, player);
@@ -54,7 +55,7 @@ module.exports = (io) =>{
         const game = gm.getGame(gameId);
         if(await handleJoinGame(gameId, player)){
             game.p2 = player;
-            game.socket2 = socket.id;
+            socket.join(gameId);
             io.to(socket.id).emit('joinId', {status : true, res : gameId});
             console.log(gm.liveGames);
         }
@@ -68,15 +69,12 @@ module.exports = (io) =>{
         authenticateToken(token, async (isValid) =>{
             if(isValid){
                 const game = gm.getGame(gameId);
+                console.log("lastmove : ", lastmove);
                 if(lastmove){ 
                     game.chess.move(lastmove);
+                    console.log("game : ", game);
                 }
-                if(socket.id === game.socket1) {
-                    io.to(game.socket2).emit('oppMove',currFen);
-                }
-                else {
-                    io.to(game.socket1).emit('oppMove', currFen);
-                }
+                socket.to(gameId).emit('oppMove',currFen);
             }
             else{
                 io.to(socket.id).emit('gameUpdates', 'Invalid Token!');
@@ -95,6 +93,17 @@ module.exports = (io) =>{
                 io.to(socket.id).emit('gameUpdates', 'No such game exists!');
                 // socket.disconnect();
             }
+        }
+    })
+
+    socket.on('endGame', async(gameId, player, res)=>{
+        const game = gm.getGame(gameId);
+        const result = await handleEndGame(gameId, player, res, game);
+        if(result.status){
+            io.to(gameId).emit('gameUpdates', `${result.reason ==='w'?'Black':'White'} wins the game!`);
+        }
+        else{
+            io.to(socket.id).emit('gameUpdates', result.reason);
         }
     })
 

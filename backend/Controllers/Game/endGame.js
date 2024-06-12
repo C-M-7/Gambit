@@ -1,17 +1,14 @@
 const { getDB } = require("../../Configs/mongoConnection");
-const Game = require('../Classes/Game.js');
-const GameManager = require('../Classes/GameManager.js');
 
-const handleEndGame = async(req, res)=>{
+const handleEndGame = async(gameId, player, result, game)=>{
     try{
-        const {gameId, player, result} = req.body();
         const db = await getDB();
         const currGame = await db.collection('games').findOne({gameId : gameId})
         
         if(!currGame || !currGame.player1 || !currGame.player2) return {status : false, reason : "GNF", update : null}; // game not found
 
-        const moves = game.moves.join(',');
-        if(result === 'Checkmate'){
+        const moves = game.chess.history().join(',');
+        if(result === 'CHECKMATE'){
             if(player === currGame.player2) game.result = currGame.player2;
             else game.result = currGame.player1;
         }
@@ -19,20 +16,21 @@ const handleEndGame = async(req, res)=>{
             game.result = result;
         }
 
-        const stored = await db.collection('games').findOneAndUpdate({gameId : gameId}, {$set:{moves : String(moves), gameState:String(game.gameState), result : String(game.result)}});
+        const stored = await db.collection('games').findOneAndUpdate({gameId : gameId}, {$set:{moves : String(moves), gameState:String(game.chess.fen()), result : String(game.result)}});
 
         if(stored) delete game;
         
         return{
             status : true,
-            reason : game.result,
+            reason : game.chess.turn(),
             update : result 
         }
     }
     catch(err){
-        console.log(err.message);
-        console.log(err.stack);
-        return new Error(err.message); 
+        return{
+            status : false,
+            reason : err.message,
+        }
     }
 }
 

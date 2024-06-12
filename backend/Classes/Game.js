@@ -5,8 +5,6 @@ class Game{
     constructor(gameId){
         this.p1 = null;
         this.p2 = null;
-        this.socket1 = null;
-        this.socket2 = null;
         this.gameId = gameId;
         this.chess = new Chess();
         // this.moves = [];

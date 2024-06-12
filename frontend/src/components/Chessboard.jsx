@@ -23,6 +23,7 @@ import axios from 'axios';
 
 function Chessboard({color}) {
   const [game, setGame] = useState(new Chess());
+  const [lastmove, setLastMove] = useState('');
   const [position, setPosition] = useState(game.fen());
   const [selectedSq, setSelectedSq] = useState(null);
   const {gameId} = useSelector((state) => state.GameDetails);
@@ -41,35 +42,26 @@ function Chessboard({color}) {
       if(result.status==='DRAW' || result.status === 'STALEMATE' || result.status === 'TFR' || result.status === 'ISM'){
         toast.error("The Game draws!");
       }
-      else if(result.status === 'CHECK'){
-        toast.error("You are in Check!");
-      }
       else if(result.status === 'CHECKMATE'){
         toast.error(`Its a checkmate, ${result.turn === 'b' ? 'w' : 'b'} wins!`)
-        try{
-          const response = await axios.post('/gambit/',{
-            gameId : gameId,
-            player : email,
-            result : 
-          })
-        }
-        catch(err){
-
-        }
+        socketContext.emit("endGame", gameId, email, result.status);
+      }
+      else if(result.status === 'CHECK'){
+        toast.error("You are in Check!");
       }
     }
   }
 
   // ON LOADING NEW/OLD GAME
-  useEffect(()=>{
-    if(sessionStorage.length > 0 && (sessionStorage.key(sessionStorage.length - 1) === 'w' || sessionStorage.key(sessionStorage.length - 1) === 'b')){
-      var lastKey = sessionStorage.key(sessionStorage.length - 1);
-      var lastGame = JSON.parse(sessionStorage.getItem(lastKey));
-      const newGame = new Chess(lastGame.fen());
-      lastGame.history().forEach(move => newGame.move(move));
-      setGame(newGame);
-    }
-  },[])
+  // useEffect(()=>{
+  //   if(sessionStorage.length > 0 && (sessionStorage.key(sessionStorage.length - 1) === 'w' || sessionStorage.key(sessionStorage.length - 1) === 'b')){
+  //     var lastKey = sessionStorage.key(sessionStorage.length - 1);
+  //     var lastGame = JSON.parse(sessionStorage.getItem(lastKey));
+  //     const newGame = new Chess(lastGame.fen());
+  //     lastGame.history().forEach(move => newGame.move(move));
+  //     setGame(newGame);
+  //   }
+  // },[])
 
   // SOCKETS 
   useEffect(()=>{
@@ -88,13 +80,13 @@ function Chessboard({color}) {
   },[socketContext])  
   
   useEffect(()=>{
-    if(game.history().length > 0){
-      const hist = game.history();
-      const lastmove = hist[hist.length-1];
+    // if(game.history().length > 0){
+    //   const hist = game.history();
+    //   const lastmove = hist[hist.length-1];
+    //   socketContext.emit('move', game.fen(), lastmove, gameId);
+    // }else{
       socketContext.emit('move', game.fen(), lastmove, gameId);
-    }else{
-      socketContext.emit('move', game.fen(), '', gameId);
-    }
+    // }
   },[position])
 
   // BOARD LOGIC
@@ -114,7 +106,6 @@ function Chessboard({color}) {
   };
 
   const handleSqClick = (row, col) => {
-    // if(){
     if(color !== game.turn()){
       toast.error("Please wait for your turn!");
       setSelectedSq(null);
@@ -130,6 +121,7 @@ function Chessboard({color}) {
           });
           if (move) {
             console.log(move.san);
+            setLastMove(move.san);
             new Audio(moveSound).play();
             setGame(new Chess(game.fen()));
             setPosition(game.fen());
@@ -144,9 +136,6 @@ function Chessboard({color}) {
         setSelectedSq(square);
       }
     }
-  // }else{
-  //   selectedSq(null);
-  // }
 };
 
   const createSquare = (row, col) => {
