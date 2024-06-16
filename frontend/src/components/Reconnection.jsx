@@ -1,0 +1,46 @@
+// import { getDB } from "../../../backend/Configs/mongoConnection";
+import axios from 'axios';
+
+const reconnectingUser = async (token, gameId) => {
+    try{
+        const response = await axios.post("/gambit/userinfo",{
+            token : token
+        });
+
+        if(!response.data.status){
+            return response;
+            // status, status_code, error
+        }
+        const user = response.data.user;
+        
+        const gameRes = await axios.post("/gambit/getgame",{
+            gameId : gameId,
+        })
+
+        if(!gameRes.data.status){
+            return gameRes
+        }
+
+        const player1 = gameRes.data.game.player1;
+        const player2 = gameRes.data.game.player2;
+        const player = user.email;
+
+        if(player === player1 || player === player2){
+            console.log('yessss');
+            return{
+                status : true,
+                fen : gameRes.data.game.gameState,
+                color : player===player1?'w':'b',
+                player : player
+            }
+        }
+    }
+    catch(err){
+        return{
+            status : false,
+            error : err.message
+        }
+    }
+}
+
+export default reconnectingUser;

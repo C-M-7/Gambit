@@ -7,6 +7,7 @@ const { handleResign } = require('../Controllers/Game/resignGame.js');
 const gm = new GameManager();   
 const jwt = require("jsonwebtoken");
 const { handleEndGame } = require('../Controllers/Game/endGame.js');
+const { storeGame } = require('../Controllers/Game/storeGame.js');
 require('dotenv').config();
 
 const generateGameId = () =>{
@@ -29,7 +30,7 @@ module.exports = (io) =>{
     }
 
     io.on('connection', (socket)=>{
-    console.log('a user connected');
+    console.log('a user connected '+socket.id);
     const player = socket.handshake.headers.email;
     const token = socket.handshake.auth.token;
 
@@ -69,12 +70,18 @@ module.exports = (io) =>{
         authenticateToken(token, async (isValid) =>{
             if(isValid){
                 const game = gm.getGame(gameId);
-                console.log("lastmove : ", lastmove);
+                // console.log("lastmove : ", lastmove);
                 if(lastmove){ 
                     game.chess.move(lastmove);
-                    console.log("game : ", game);
+                    // console.log("game : ", game);
                 }
-                socket.to(gameId).emit('oppMove',currFen);
+                const result = await storeGame(gameId, currFen);
+                if(result.status){
+                    socket.to(gameId).emit('oppMove',currFen,   lastmove);
+                }
+                else{
+                    io.to(socket.id).emit('gameUpdates', result.reason);
+                }
             }
             else{
                 io.to(socket.id).emit('gameUpdates', 'Invalid Token!');
@@ -82,16 +89,24 @@ module.exports = (io) =>{
         })
     })
 
-    socket.on('resign', async (gameId)=>{
+    socket.on('reconnection', (email, gameId)=>{
+        socket.join(gameId);
+        io.to(socket.id).emit('reconnection', true);
+    })
+
+    socket.on('resign', async (gameId, color)=>{
         const game = gm.getGame(gameId);
-        const result = await handleResign(gameId, player, game);
+        const result = await handleResign(gameId, player, game, color);
         if(result.status){
-            io.emit('gameUpdates', `The winner of the game is ${game.reason}`);
+            io.to(gameId).emit('gameUpdates', `${color === 'b' ? 'White' : 'Black'} wins the game!`);
         }
         else{
             if(result.reason === "GNF"){
                 io.to(socket.id).emit('gameUpdates', 'No such game exists!');
                 // socket.disconnect();
+            }
+            else{
+                io.to(socket.id).emit('gameUpdates', result.reason);
             }
         }
     })
@@ -108,7 +123,7 @@ module.exports = (io) =>{
     })
 
     socket.on('disconnect', () => {
-        console.log('A user disconnected');
+        console.log('A user disconnected '+socket.id);
         socket.handshake.auth = "";
     });
 })}

@@ -4,18 +4,17 @@ import {useNavigate} from 'react-router-dom';
 import {toast} from 'sonner';
 import { io } from "socket.io-client";
 import Cookies from 'js-cookie';
-import { useDispatch, useSelector } from "react-redux";
-import { setGameDetails } from "../redux/slices/GameDetails";
+import { useSelector } from "react-redux";
+// import { setGameDetails } from "../redux/slices/GameDetails";
 
 function Home() {
     const {setSocketContext} = useContext(SocketContext)
     const [user, setUser] = useState({});
     const [socket, setSocket] = useState(null);
     const [joinId, setJoinId] = useState('');
-    const [gameId, setGameId] = useState('');
     const navigate = useNavigate();
     const userData = useSelector((state) => state.UserDetails);
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
     
     
     useEffect(()=>{
@@ -70,25 +69,15 @@ function Home() {
     useEffect(()=>{
       if(socket){
         socket.on('gameId', (dataGameId)=>{
-          setGameId(dataGameId);
-          dispatch(setGameDetails({
-            gameId : dataGameId,
-            color : 'w'
-          }))
+          sessionStorage.setItem('gameId',JSON.stringify({gameId : dataGameId, color : 'w'}));
+          navigate('/playground');
         })
         return () =>{
           socket.off('gameId');
         }
       }
     },[socket])
-  
-    useEffect(()=>{
-      if(gameId !== ''){
-        navigate('/playground')
-      }
-    },[gameId, navigate]);
     
-  
     // Join Game Logic
     const handleJoinId = (event) =>{
       setJoinId(event.target.value);
@@ -108,10 +97,7 @@ function Home() {
       if(socket){
         socket.on('joinId', (response)=>{
           if(response.status){
-            dispatch(setGameDetails({
-              gameId : response.res,
-              color : 'b'
-            }))
+            sessionStorage.setItem('gameId', JSON.stringify({gameId : response.res, color : 'b'}));
             navigate('/playground');
           }
           else{

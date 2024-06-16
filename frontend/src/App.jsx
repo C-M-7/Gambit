@@ -13,7 +13,6 @@ function App() {
   const [isUser, setIsuser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
-  const userData = useSelector((state) => state.UserDetails);
 
   const getUserInfo = async (token) => {
     try {

@@ -6,7 +6,6 @@ const handleUserInfo = async(req, res) =>{
     try{
         const db = await getDB();
         const {token} = req.body;
-        
 
         jwt.verify(
             token,
