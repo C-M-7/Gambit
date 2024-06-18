@@ -2,13 +2,13 @@ import React,{ useContext, useEffect, useState } from "react"
 import SocketContext from "../redux/SocketContext";
 import {useNavigate} from 'react-router-dom';
 import {toast} from 'sonner';
-import { io } from "socket.io-client";
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 import { useSelector } from "react-redux";
 // import { setGameDetails } from "../redux/slices/GameDetails";
 
 function Home() {
-    const {setSocketContext} = useContext(SocketContext)
+    // const {setSocketContext} = useContext(SocketContext)
+    const { socketContext } = useContext(SocketContext);
     const [user, setUser] = useState({});
     const [socket, setSocket] = useState(null);
     const [joinId, setJoinId] = useState('');
@@ -16,45 +16,50 @@ function Home() {
     const userData = useSelector((state) => state.UserDetails);
     // const dispatch = useDispatch();
     
-    
     useEffect(()=>{
-      const token = Cookies.get('token');
-      if(token){
-        try{
-          const socketInstance = io('http://localhost:7000',{
-            auth:{
-              token : token
-            }
-          })
-          console.log(socketInstance);
-          setSocket(socketInstance);
-          setSocketContext(socketInstance);
-          
-          socketInstance.on('connect', () => {
-            console.log('Connected to socketInstance server');
-          });
-
-          socketInstance.on('disconnect',()=>{
-            // Cookies.remove("token");
-            socketInstance.disconnect();
-            console.log("user disconnected from server")
-          });
-          
-          return () =>{
-            socketInstance.off('connect');
-            socketInstance.off('disconnect');
-          }
-        }
-        catch(err){
-          toast.warning('Unable to connect at the moment please try again later');
-          navigate('/sigin')
-        }
-      }
-      else{
-        toast.error('Token not found! Please SigIn again!')
-        navigate('/signin');
+      if(socketContext){
+        setSocket(socketContext);
       }
     },[])
+    
+    // useEffect(()=>{
+    //   const token = Cookies.get('token');
+    //   if(token){
+    //     try{
+    //       const socketInstance = io('http://localhost:7000',{
+    //         auth:{
+    //           token : token
+    //         }
+    //       })
+    //       console.log(socketInstance);
+    //       setSocket(socketInstance);
+    //       setSocketContext(socketInstance);
+          
+    //       socketInstance.on('connect', () => {
+    //         console.log('Connected to socketInstance server');
+    //       });
+
+    //       socketInstance.on('disconnect',()=>{
+    //         // Cookies.remove("token");
+    //         socketInstance.disconnect();
+    //         console.log("user disconnected from server")
+    //       });
+          
+    //       return () =>{
+    //         socketInstance.off('connect');
+    //         socketInstance.off('disconnect');
+    //       }
+    //     }
+    //     catch(err){
+    //       toast.warning('Unable to connect at the moment please try again later');
+    //       navigate('/sigin')
+    //     }
+    //   }
+    //   else{
+    //     toast.error('Token not found! Please SigIn again!')
+    //     navigate('/signin');
+    //   }
+    // },[])
     
     useEffect(()=>{
       setUser(userData);

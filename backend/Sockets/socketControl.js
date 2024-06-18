@@ -89,8 +89,10 @@ module.exports = (io) =>{
         })
     })
 
-    socket.on('reconnection', (email, gameId)=>{
+    socket.on('reconnection', (fen, gameId)=>{
+        console.log('reconnected ', socket.id);
         socket.join(gameId);
+        socket.emit(gameId).emit('oppMove', fen, );
         io.to(socket.id).emit('reconnection', true);
     })
 
