@@ -92,8 +92,8 @@ module.exports = (io) =>{
     socket.on('reconnection', (fen, gameId)=>{
         console.log('reconnected ', socket.id);
         socket.join(gameId);
-        socket.emit(gameId).emit('oppMove', fen, );
         io.to(socket.id).emit('reconnection', true);
+        socket.to(gameId).emit('oppMove', fen, 'reconnection');
     })
 
     socket.on('resign', async (gameId, color)=>{

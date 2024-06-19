@@ -31,7 +31,6 @@ function Chessboard({ color, email }) {
 
   // HANDLING THE SWITCHING ROUTE CASE
   useEffect(() => {
-    console.log('ghuss gya 3');
     const handlePopState = (event) => {
       event.preventDefault();
       const confirmLeave = window.confirm(
@@ -55,13 +54,18 @@ function Chessboard({ color, email }) {
 
   // HANDLING INCOMING MOVES
   const handleBoard = (fen, oppLastMove) => {
+    console.log(fen);
     const result = RuleBook(fen);
     if (!result.valid) {
       toast.error(result.status);
-    } else {
-      const newGame = new Chess(fen);
-      setGame(newGame);
-      if (oppLastMove) {
+    } else {      
+      if (oppLastMove === 'reconnection') {
+        const currfen = sessionStorage.getItem(currGame.gameId);
+        setGame(new Chess(currfen));
+      }
+      else if(oppLastMove){
+        const newGame = new Chess(fen);
+        setGame(newGame);
         sessionStorage.setItem(currGame.gameId, fen);
       }
       if (
@@ -84,15 +88,12 @@ function Chessboard({ color, email }) {
 
   // ON RELOADING NEW/OLD GAME
   useEffect(() => {
-    console.log('ghuss gya 1');
     const reconnect = async () => {
       if (sessionStorage.getItem(currGame.gameId)) {
         setLoading(true);
         const token = Cookies.get("token");
         const response = await reconnectingUser(token, currGame.gameId);
-        console.log(response);
         if (response.status) {
-          console.log('reconnected hai ya nhi?')
           socketContext.emit('reconnection', sessionStorage.getItem(currGame.gameId), currGame.gameId);
           setLoading(false);
         }
@@ -103,7 +104,6 @@ function Chessboard({ color, email }) {
   }, []);
 
   useEffect(()=>{
-    console.log('ghuss gya 2');
     if(!loading){
       socketContext.on('reconnection', data=>{
         if(data){
@@ -112,21 +112,25 @@ function Chessboard({ color, email }) {
           toast.error('Reconnected');
         }
       })
+      return () => {
+        socketContext.off("reconnection");
+      };
     }
   },[socketContext])
 
   // SOCKETS
   useEffect(() => {
-    console.log('ghuss gya 4');
     if (!loading) {
       socketContext.on("oppMove", (fen, oppLastMove) =>
         handleBoard(fen, oppLastMove)
       );
+      return () =>{
+        socketContext.off('oppMove');
+      }
     }
   }, [socketContext, game, position]);
 
   useEffect(() => {
-    console.log('ghuss gya 5');
     if (!loading && socketContext) {
       socketContext.on("gameUpdates", (update) => {
         toast.error(update);
@@ -138,7 +142,6 @@ function Chessboard({ color, email }) {
   }, [socketContext]);
 
   useEffect(() => {
-    console.log('ghuss gya 6');
     socketContext.emit("move", game.fen(), lastmove, currGame.gameId);
   }, [position]);
 
@@ -179,7 +182,6 @@ function Chessboard({ color, email }) {
             promotion: "q",
           });
           if (move) {
-            console.log(move.san);
             setLastMove(move.san);
             new Audio(moveSound).play();
             setGame(new Chess(game.fen()));

@@ -26,7 +26,6 @@ const reconnectingUser = async (token, gameId) => {
         const player = user.email;
 
         if(player === player1 || player === player2){
-            console.log('yessss');
             return{
                 status : true,
                 fen : gameRes.data.game.gameState,
