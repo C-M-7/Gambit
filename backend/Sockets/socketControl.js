@@ -100,7 +100,7 @@ module.exports = (io) =>{
         const game = gm.getGame(gameId);
         const result = await handleResign(gameId, player, game, color);
         if(result.status){
-            io.to(gameId).emit('gameUpdates', `${color === 'b' ? 'White' : 'Black'} wins the game!`);
+            io.to(gameId).emit('resign', `${color === 'b' ? 'White' : 'Black'} wins the game!`);
         }
         else{
             if(result.reason === "GNF"){

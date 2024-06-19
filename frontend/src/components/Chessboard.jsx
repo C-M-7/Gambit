@@ -19,6 +19,7 @@ import Brook from "../utils/Pieces/rook-b.svg";
 import { toast } from "sonner";
 import { RuleBook } from "./RuleBook";
 import reconnectingUser from "./Reconnection";
+import { useNavigate } from "react-router-dom";
 
 function Chessboard({ color, email }) {
   const [game, setGame] = useState(new Chess());
@@ -28,6 +29,7 @@ function Chessboard({ color, email }) {
   const [selectedSq, setSelectedSq] = useState(null);
   const currGame = JSON.parse(sessionStorage.getItem("gameId"));
   const { socketContext } = useContext(SocketContext);
+  const navigate = useNavigate();
 
   // HANDLING THE SWITCHING ROUTE CASE
   useEffect(() => {
@@ -40,6 +42,7 @@ function Chessboard({ color, email }) {
         window.history.pushState(null, null, window.location.pathname);
       } else {
         socketContext.emit("resign", currGame.gameId, color);
+        sessionStorage.clear();
         window.history.back();
       }
     };
@@ -85,6 +88,15 @@ function Chessboard({ color, email }) {
       }
     }
   };
+
+  // HANDLING RESIGNS
+  useEffect(()=>{
+    socketContext.on('resign', data=>{
+      toast.error(data);
+      sessionStorage.clear();
+      navigate('/home');
+    })
+  },[socketContext])
 
   // ON RELOADING NEW/OLD GAME
   useEffect(() => {
