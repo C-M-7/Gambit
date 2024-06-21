@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {useNavigate} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import {toast} from 'sonner';
 
@@ -38,6 +38,7 @@ function Login() {
               navigate('/home');
               toast.success('SignIn was successful!');
             }
+
         }
         catch(err){
             console.error('Error :', err.response.data);
@@ -46,7 +47,7 @@ function Login() {
 }
 
   return (
-    <div className="flex justify-center items-center h-screen w-screen">
+    <div className="flex flex-col justify-center items-center h-screen w-screen">
       <div className="flex flex-col items-center p-10 space-y-4 rounded-md border border-black">
         <div className="text-3xl font-bold">SignIn</div>
         <div>
@@ -62,6 +63,9 @@ function Login() {
             SignIn
           </button>
         </div>
+      </div>
+      <div>
+        Don't have an account? <Link to={'/signup'} className="underline font-bold">Signup here</Link>
       </div>
     </div>
   );

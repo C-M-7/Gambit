@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {toast} from 'sonner';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Signup() {
     console.log('signup');
@@ -46,17 +46,18 @@ function Signup() {
                 })
                 if(response){
                     navigate('/signin');
-                    toast.success('User Created Successfully, Now Please SignIn!')
+                    toast.success('User created successfully, Now SignIn please!')
                 }
             }
             catch(err){
+                toast.error(err.response.data.error);
                 console.error('Error :', err.response.data);
             }
         }
     }
 
   return (
-    <div className='flex justify-center items-center h-screen w-screen'>
+    <div className='flex flex-col justify-center items-center h-screen w-screen'>
         <div className='flex flex-col items-center p-10 space-y-4 rounded-md border border-black shadow-md'>
             <div className='text-3xl font-bold'>
                 SignUp
@@ -81,8 +82,10 @@ function Signup() {
                 <button className='border border-black rounded-md h-10 mt-8 w-40 hover:bg-black hover:text-white transition transform active:scale-95 focus:outline-none' onClick={handleClick}>Sign Up</button>
             </div>
         </div>
+        <div>
+            Already have an account? <Link to={'/signin'} className='underline font-bold'>Signin here</Link>
+        </div>
     </div>
   )
 }
-
 export default Signup

@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 
 function Home() {
     // const {setSocketContext} = useContext(SocketContext)
+    console.log('hi home');
     const { socketContext } = useContext(SocketContext);
     const [user, setUser] = useState({});
     const [socket, setSocket] = useState(null);

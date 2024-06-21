@@ -10,12 +10,14 @@ import { useDispatch } from "react-redux";
 import { setUserDetails } from "./redux/slices/UserDetails.jsx";
 import Playground from "./pages/Playground.jsx";
 import SocketContext from "./redux/SocketContext.jsx";
+import Signup from "./pages/Signup.jsx";
 
 function App() {
   const {setSocketContext} = useContext(SocketContext);  
   const [isUser, setIsuser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
+  console.log('hi app');
 
   const getUserInfo = async (token) => {
     try {
@@ -66,8 +68,8 @@ function App() {
         <Navigate to='/signin'/>
       }
     }else{
+      setIsLoading(false);
       toast.error('Token not found! Please SigIn again!');
-      <Navigate to='/signin'/>
     }
   }, []);
 
@@ -79,9 +81,11 @@ function App() {
     <>
       <Routes>
         <Route path="/signin" element={<Login/>}/>
-        <Route path="/home" element={<Home/>}/>
+        <Route path="/home" element={!isUser ? <Navigate to='/signin'/> : 
+          <Home/>}/>
         <Route path="/" element={!isUser ? <Navigate to='/signin'/> : <Navigate to='/home'/>}/>
-        <Route path="/playground" element={<Playground/>}/>
+        <Route path="/playground" element={!isUser ? <Navigate to='/signin'/> : <Playground/>}/>
+        <Route path="/signup" element={<Signup/>}/>
       </Routes>
     </>
   );
