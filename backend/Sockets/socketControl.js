@@ -58,6 +58,7 @@ module.exports = (io) =>{
             game.p2 = player;
             socket.join(gameId);
             io.to(socket.id).emit('joinId', {status : true, res : gameId});
+            io.to(gameId).emit('start', true);
             console.log(gm.liveGames);
         }
         else{
@@ -92,6 +93,7 @@ module.exports = (io) =>{
     socket.on('reconnection', (fen, gameId)=>{
         console.log('reconnected ', socket.id);
         socket.join(gameId);
+        io.to(gameId).emit('start', true);
         io.to(socket.id).emit('reconnection', true);
         socket.to(gameId).emit('oppMove', fen, 'reconnection');
     })

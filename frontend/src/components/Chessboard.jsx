@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { RuleBook } from "./RuleBook";
 import reconnectingUser from "./Reconnection";
 import { useNavigate } from "react-router-dom";
+import AlertDialog from "./StartDialog";
 
 function Chessboard({ color, email }) {
   const [game, setGame] = useState(new Chess());
@@ -27,9 +28,20 @@ function Chessboard({ color, email }) {
   const [lastmove, setLastMove] = useState("");
   const [position, setPosition] = useState(game.fen());
   const [selectedSq, setSelectedSq] = useState(null);
+  const [openDialog, setDialog] = useState(true);
   const currGame = JSON.parse(sessionStorage.getItem("gameId"));
   const { socketContext } = useContext(SocketContext);
   const navigate = useNavigate();
+
+  // WAIT FOR OPPONENT DIALOG
+  useEffect(()=>{
+    socketContext.on('start', (data)=>{
+      setDialog(false);
+    })
+    return () =>{
+      socketContext.off('start');
+    }
+  },[socketContext])
 
   // HANDLING THE SWITCHING ROUTE CASE
   useEffect(() => {
@@ -102,12 +114,11 @@ function Chessboard({ color, email }) {
   useEffect(() => {
     const reconnect = async () => {
       if (sessionStorage.getItem(currGame.gameId)) {
-        setLoading(true);
         const token = Cookies.get("token");
         const response = await reconnectingUser(token, currGame.gameId);
         if (response.status) {
           socketContext.emit('reconnection', sessionStorage.getItem(currGame.gameId), currGame.gameId);
-          setLoading(false);
+          setDialog(false);
         }
       }
     };
@@ -156,6 +167,10 @@ function Chessboard({ color, email }) {
   useEffect(() => {
     socketContext.emit("move", game.fen(), lastmove, currGame.gameId);
   }, [position]);
+
+  if(openDialog){
+    return <div><AlertDialog gameId = {currGame.gameId}/></div>
+  }
 
   if (loading) {
     return <div>Loading....</div>;
