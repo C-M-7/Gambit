@@ -233,7 +233,6 @@ function Chessboard({ color, email }) {
         ? String.fromCharCode(97 + col) + (8 - row)
         : String.fromCharCode(104 - col) + (row + 1);
     const piece = game.get(square);
-    // const isSelected = square === selectedSq;
 
     return (
       <div

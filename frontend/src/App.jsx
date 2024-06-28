@@ -11,6 +11,7 @@ import { setUserDetails } from "./redux/slices/UserDetails.jsx";
 import Playground from "./pages/Playground.jsx";
 import SocketContext from "./redux/SocketContext.jsx";
 import Signup from "./pages/Signup.jsx";
+import PlayerLogs from "./pages/PlayerLogs.jsx";
 
 function App() {
   const { setSocketContext } = useContext(SocketContext);
@@ -25,6 +26,7 @@ function App() {
         token: token,
       });
       if (response.data.status) {
+        console.log(response.data.user);
         dispatch(setUserDetails(response.data.user));
         setIsuser(true);
       }
@@ -100,6 +102,10 @@ function App() {
         <Route
           path="/playground"
           element={!isUser ? <Navigate to="/signin" /> : <Playground />}
+        />
+        <Route
+          path="/logs"
+          element={!isUser ? <Navigate to='/signin'/> : <PlayerLogs/>}
         />
         <Route path="/signup" element={<Signup />} />
       </Routes>

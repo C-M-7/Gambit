@@ -2,12 +2,9 @@ import React,{ useContext, useEffect, useState } from "react"
 import SocketContext from "../redux/SocketContext";
 import {useNavigate} from 'react-router-dom';
 import {toast} from 'sonner';
-// import Cookies from 'js-cookie';
 import { useSelector } from "react-redux";
-// import { setGameDetails } from "../redux/slices/GameDetails";
 
 function Home() {
-    // const {setSocketContext} = useContext(SocketContext)
     console.log('hi home');
     const { socketContext } = useContext(SocketContext);
     const [user, setUser] = useState({});
@@ -15,52 +12,12 @@ function Home() {
     const [joinId, setJoinId] = useState('');
     const navigate = useNavigate();
     const userData = useSelector((state) => state.UserDetails);
-    // const dispatch = useDispatch();
     
     useEffect(()=>{
       if(socketContext){
         setSocket(socketContext);
       }
     },[])
-    
-    // useEffect(()=>{
-    //   const token = Cookies.get('token');
-    //   if(token){
-    //     try{
-    //       const socketInstance = io('http://localhost:7000',{
-    //         auth:{
-    //           token : token
-    //         }
-    //       })
-    //       console.log(socketInstance);
-    //       setSocket(socketInstance);
-    //       setSocketContext(socketInstance);
-          
-    //       socketInstance.on('connect', () => {
-    //         console.log('Connected to socketInstance server');
-    //       });
-
-    //       socketInstance.on('disconnect',()=>{
-    //         // Cookies.remove("token");
-    //         socketInstance.disconnect();
-    //         console.log("user disconnected from server")
-    //       });
-          
-    //       return () =>{
-    //         socketInstance.off('connect');
-    //         socketInstance.off('disconnect');
-    //       }
-    //     }
-    //     catch(err){
-    //       toast.warning('Unable to connect at the moment please try again later');
-    //       navigate('/sigin')
-    //     }
-    //   }
-    //   else{
-    //     toast.error('Token not found! Please SigIn again!')
-    //     navigate('/signin');
-    //   }
-    // },[])
     
     useEffect(()=>{
       setUser(userData);
@@ -98,6 +55,10 @@ function Home() {
         toast.error('Invalid Joining GameId');
       }
     }
+    
+    const handleLogsClick = () =>{
+      navigate('/logs');
+    }
   
     useEffect(()=>{
       if(socket){
@@ -125,10 +86,15 @@ function Home() {
             <div>hello <span className="font-bold">{user.name}</span></div>
           }
         </div>
-        <div className="flex justify-center space-x-56 mt-40">
-            <button className="border border-black p-2" onClick={handleClientCreateGame}>Create Game</button>
-            <input placeholder="Enter gameId to join game" className="border border-black p-2" onChange={handleJoinId} value={joinId}/>
-            <button className="border border-black p-2" onClick={handleClientJoinGame}>Join Game</button>
+        <div className="flex flex-col items-center space-y-20">
+          <div className="flex justify-center space-x-56 mt-40">
+              <button className="border border-black p-2" onClick={handleClientCreateGame}>Create Game</button>
+              <input placeholder="Enter gameId to join game" className="border border-black p-2 w-56" onChange={handleJoinId} value={joinId}/>
+              <button className="border border-black p-2" onClick={handleClientJoinGame}>Join Game</button>
+          </div>
+          <div>
+            <button className="border border-black p-2" onClick={handleLogsClick}>My Logs</button>
+          </div>
         </div>
         
       </>
