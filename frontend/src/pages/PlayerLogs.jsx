@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ClockLoader from 'react-spinners/ClockLoader'
 import { useSelector } from "react-redux";
 import axios from "axios";
+import LogDiv from "../components/LogDiv";
 
 const PlayerLogs = () => {
   const [loading, setLoading] = useState(true);  
@@ -41,7 +42,20 @@ const PlayerLogs = () => {
     return <div>Logs not available at the moment...</div>
   }
 
-  return <div>PlayerLogs</div>;
+  return(
+  <>
+    <div className="flex flex-col items-start ml-[20%] space-y-10 mb-10">
+      <div className="font-bold text-4xl my-10">Logs</div>
+      {
+        logs.length > 0 &&
+        logs.reverse() &&
+        logs.map((item, index)=>{
+          return <LogDiv key={index} data={item} user={userData}/>
+        })
+      }
+    </div>
+  </>
+  );
 };
 
 export default PlayerLogs;
