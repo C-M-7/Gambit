@@ -57,10 +57,23 @@ const handleUserLogs = async(req, res) =>{
             })
         }
 
-        const logs = await db.collection("games").findOne({
-            
-        });
+        const logs = await db.collection("games").find({
+            $or : [{player1 : email}, {player2 : email}]
+        }).toArray();
 
+        if(logs.length === 0){
+            return res.status(400).json({
+                status : false,
+                status_code : 400,
+                error : "Start playing games to access logs"
+            })
+        }
+
+        return res.status(200).json({
+            status : true,
+            status_code : 200,
+            logs : logs
+        })
     }
     catch(err){
         return res
