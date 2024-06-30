@@ -1,5 +1,6 @@
 import React,{ useContext, useEffect, useState } from "react"
 import SocketContext from "../redux/SocketContext";
+import Cookies from 'js-cookie';
 import {useNavigate} from 'react-router-dom';
 import {toast} from 'sonner';
 import { useSelector } from "react-redux";
@@ -76,6 +77,12 @@ function Home() {
         }
       }
     },[socket])
+
+    // Logout Logic
+    const handleLogout = () =>{
+      Cookies.remove('token');
+      window.location.reload();
+    }
   
     return (
       <>
@@ -92,8 +99,9 @@ function Home() {
               <input placeholder="Enter gameId to join game" className="border border-black p-2 w-56" onChange={handleJoinId} value={joinId}/>
               <button className="border border-black p-2" onClick={handleClientJoinGame}>Join Game</button>
           </div>
-          <div>
+          <div className="flex space-x-6">
             <button className="border border-black p-2" onClick={handleLogsClick}>My Logs</button>
+            <button className="border border-black p-2" onClick={handleLogout}>LogOut</button>
           </div>
         </div>
         
