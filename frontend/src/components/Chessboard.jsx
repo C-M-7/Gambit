@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { RuleBook } from "./RuleBook";
 import reconnectingUser from "./Reconnection";
 import { useNavigate } from "react-router-dom";
-import AlertDialog from "./StartDialog";
+import { StartModal } from "./StartModal";
 
 function Chessboard({ color, email }) {
   const [game, setGame] = useState(new Chess());
@@ -169,7 +169,7 @@ function Chessboard({ color, email }) {
   }, [position]);
 
   if(openDialog){
-    return <div><AlertDialog gameId = {currGame.gameId}/></div>
+    return <div><StartModal gameId = {currGame.gameId}/></div>
   }
 
   if (loading) {
