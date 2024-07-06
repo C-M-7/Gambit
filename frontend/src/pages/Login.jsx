@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "../redux/slices/UserDetails";
+import SocketContext from "../redux/SocketContext";
+import { io } from "socket.io-client";
+import ClockLoader from "react-spinners/ClockLoader";
 
 function Login() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);  
+  const { setSocketContext } = useContext(SocketContext);
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
-  // const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   const handleMail = (event) => {
@@ -19,6 +23,23 @@ function Login() {
   const handlePassword = (event) => {
     setPassword(event.target.value);
   };
+
+  const setSocketFromLogin = async(token)=>{
+    try{
+      setLoading(true);
+      const socketInstance = io("http://localhost:7000", {
+        auth: {
+          token: token,
+        },
+      });
+      setSocketContext(socketInstance);
+      setLoading(false);
+    }
+    catch(err){
+      navigate('/signin');
+      toast.error("Unable to join you at the moment!")
+    }
+  }
 
   const handleClick = async (event) => {
     event.preventDefault();
@@ -35,6 +56,7 @@ function Login() {
         console.log(response.data);
         if (response) {
           dispatch(setUserDetails(response.data));
+          await setSocketFromLogin(response.data.loginToken);
           navigate("/home");
           toast.success("SignIn was successful!");
         }
@@ -47,6 +69,10 @@ function Login() {
   // if (loading) {
   //   return <div>Loading...</div>;
   // }
+
+  if(loading){
+    return <div className="ml-[50%] mt-[25%]"><ClockLoader speedMultiplier={4}/></div>;
+  }
 
   return (
     <div className="flex flex-col justify-center items-center h-screen w-screen">

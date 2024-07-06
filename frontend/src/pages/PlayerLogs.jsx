@@ -22,7 +22,6 @@ const PlayerLogs = () => {
           console.log(logsRes);
           if(logsRes.data.logs){
             setLogs(logsRes.data.logs);  
-            console.log(logsRes.data.logs);
           }
           setLoading(false);
         }

@@ -54,7 +54,8 @@ module.exports = (io) =>{
     
     socket.on("join_game", async (gameId)=>{
         const game = gm.getGame(gameId);
-        if(await handleJoinGame(gameId, player)){
+        const response = await handleJoinGame(gameId, player);
+        if(response.status){
             game.p2 = player;
             socket.join(gameId);
             io.to(socket.id).emit('joinId', {status : true, res : gameId});
@@ -62,7 +63,7 @@ module.exports = (io) =>{
             console.log(gm.liveGames);
         }
         else{
-            io.to(socket.id).emit('joinId', {status : false, res : 'Sorry the room is full!'});
+            io.to(socket.id).emit('joinId', {status : false, res : response.reason});
             socket.disconnect();
         }
     })

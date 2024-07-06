@@ -24,24 +24,26 @@ import { StartModal } from "./StartModal";
 
 function Chessboard({ color, email }) {
   const [game, setGame] = useState(new Chess());
-  const [loading, setLoading] = useState(false);
   const [lastmove, setLastMove] = useState("");
   const [position, setPosition] = useState(game.fen());
   const [selectedSq, setSelectedSq] = useState(null);
   const [openDialog, setDialog] = useState(true);
-  const currGame = JSON.parse(sessionStorage.getItem("gameId"));
+  const currGame = JSON.parse(sessionStorage.getItem("gameId"));  
   const { socketContext } = useContext(SocketContext);
   const navigate = useNavigate();
 
   // WAIT FOR OPPONENT DIALOG
-  useEffect(()=>{
-    socketContext.on('start', (data)=>{
+  useEffect(() => {
+    socketContext.on("start", (data) => {
       setDialog(false);
-    })
-    return () =>{
-      socketContext.off('start');
-    }
-  },[socketContext])
+      if(!sessionStorage.getItem(currGame.gameId)){
+        sessionStorage.setItem(currGame.gameId, 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+      }
+    });
+    return () => {
+      socketContext.off("start");
+    };
+  }, [socketContext]);
 
   // HANDLING THE SWITCHING ROUTE CASE
   useEffect(() => {
@@ -51,11 +53,11 @@ function Chessboard({ color, email }) {
         "Are you sure you want to leave this page?"
       );
       if (!confirmLeave) {
-        window.history.pushState(null, null, window.location.pathname);
+        window.history.pushState(null, 'http://localhost:5173/home', window.location.pathname);
       } else {
         socketContext.emit("resign", currGame.gameId, color);
         sessionStorage.clear();
-        window.history.back();
+        window.location.href = 'http://localhost:5173/home';
       }
     };
 
@@ -69,16 +71,14 @@ function Chessboard({ color, email }) {
 
   // HANDLING INCOMING MOVES
   const handleBoard = (fen, oppLastMove) => {
-    console.log(fen);
     const result = RuleBook(fen);
     if (!result.valid) {
       toast.error(result.status);
-    } else {      
-      if (oppLastMove === 'reconnection') {
+    } else {
+      if (oppLastMove === "reconnection") {
         const currfen = sessionStorage.getItem(currGame.gameId);
         setGame(new Chess(currfen));
-      }
-      else if(oppLastMove){
+      } else if (oppLastMove) {
         const newGame = new Chess(fen);
         setGame(newGame);
         sessionStorage.setItem(currGame.gameId, fen);
@@ -102,59 +102,59 @@ function Chessboard({ color, email }) {
   };
 
   // HANDLING RESIGNS
-  useEffect(()=>{
-    socketContext.on('resign', data=>{
+  useEffect(() => {
+    socketContext.on("resign", (data) => {
       toast.error(data);
       sessionStorage.clear();
-      navigate('/home');
-    })
-  },[socketContext])
+      navigate("/home");
+    });
+  }, [socketContext]);
 
   // ON RELOADING NEW/OLD GAME
   useEffect(() => {
-    const reconnect = async () => {
-      if (sessionStorage.getItem(currGame.gameId)) {
+    if (sessionStorage.getItem(currGame.gameId)) {
+      setDialog(false);
+      const reconnect = async () => {
         const token = Cookies.get("token");
         const response = await reconnectingUser(token, currGame.gameId);
         if (response.status) {
-          socketContext.emit('reconnection', sessionStorage.getItem(currGame.gameId), currGame.gameId);
+          socketContext.emit(
+            "reconnection",
+            sessionStorage.getItem(currGame.gameId),
+            currGame.gameId
+          );
           setDialog(false);
         }
-      }
-    };
-  
-    reconnect();
+      };
+      reconnect();
+    }
   }, []);
 
-  useEffect(()=>{
-    if(!loading){
-      socketContext.on('reconnection', data=>{
-        if(data){
-          const currfen = sessionStorage.getItem(currGame.gameId);
-          setGame(new Chess(currfen));
-          toast.error('Reconnected');
-        }
-      })
-      return () => {
-        socketContext.off("reconnection");
-      };
-    }
-  },[socketContext])
+  useEffect(() => {
+    socketContext.on("reconnection", (data) => {
+      if (data) {
+        const currfen = sessionStorage.getItem(currGame.gameId);
+        setGame(new Chess(currfen));
+        toast.error("Reconnected");
+      }
+    });
+    return () => {
+      socketContext.off("reconnection");
+    };
+  }, [socketContext]);
 
   // SOCKETS
   useEffect(() => {
-    if (!loading) {
-      socketContext.on("oppMove", (fen, oppLastMove) =>
-        handleBoard(fen, oppLastMove)
-      );
-      return () =>{
-        socketContext.off('oppMove');
-      }
-    }
+    socketContext.on("oppMove", (fen, oppLastMove) =>
+      handleBoard(fen, oppLastMove)
+    );
+    return () => {
+      socketContext.off("oppMove");
+    };
   }, [socketContext, game, position]);
 
   useEffect(() => {
-    if (!loading && socketContext) {
+    if (socketContext) {
       socketContext.on("gameUpdates", (update) => {
         toast.error(update);
       });
@@ -168,12 +168,12 @@ function Chessboard({ color, email }) {
     socketContext.emit("move", game.fen(), lastmove, currGame.gameId);
   }, [position]);
 
-  if(openDialog){
-    return <div><StartModal gameId = {currGame.gameId}/></div>
-  }
-
-  if (loading) {
-    return <div>Loading....</div>;
+  if (openDialog && !sessionStorage.getItem(currGame.gameId)) {
+    return (
+      <div>
+        <StartModal gameId={currGame.gameId} />
+      </div>
+    );
   }
 
   // BOARD LOGIC

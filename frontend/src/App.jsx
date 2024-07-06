@@ -15,7 +15,6 @@ import PlayerLogs from "./pages/PlayerLogs.jsx";
 
 function App() {
   const { setSocketContext } = useContext(SocketContext);
-  const [isUser, setIsuser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
   const userdetails = useSelector((state) => state.UserDetails);
@@ -28,7 +27,6 @@ function App() {
       if (response.data.status) {
         console.log(response.data.user);
         dispatch(setUserDetails(response.data.user));
-        setIsuser(true);
       }
     } catch (err) {
       console.log(err.message);
@@ -40,10 +38,10 @@ function App() {
   useEffect(() => {
     const token = Cookies.get("token");
     if (userdetails.username !== null && Object.keys(userdetails).length > 0) {
-      setIsuser(true);
       setIsLoading(false);
     } else {
       if (token) {
+        console.log("socket from app");
         getUserInfo(token);
         try {
           const socketInstance = io("http://localhost:7000", {
@@ -91,21 +89,39 @@ function App() {
         <Route path="/signin" element={<Login />} />
         <Route
           path="/home"
-          element={userdetails.username==null ? <Navigate to="/signin" /> : <Home />}
+          element={
+            userdetails.username == null ? <Navigate to="/signin" /> : <Home />
+          }
         />
         <Route
           path="/"
           element={
-            !isUser ? <Navigate to="/signin" /> : <Navigate to="/home" />
+            userdetails.username == null ? (
+              <Navigate to="/signin" />
+            ) : (
+              <Navigate to="/home" />
+            )
           }
         />
         <Route
           path="/playground"
-          element={!isUser ? <Navigate to="/signin" /> : <Playground />}
+          element={
+            userdetails.username == null ? (
+              <Navigate to="/signin" />
+            ) : (
+              <Playground />
+            )
+          }
         />
         <Route
           path="/logs"
-          element={!isUser ? <Navigate to='/signin'/> : <PlayerLogs/>}
+          element={
+            userdetails.username == null ? (
+              <Navigate to="/signin" />
+            ) : (
+              <PlayerLogs />
+            )
+          }
         />
         <Route path="/signup" element={<Signup />} />
       </Routes>

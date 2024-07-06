@@ -9,16 +9,16 @@ function Home() {
     console.log('hi home');
     const { socketContext } = useContext(SocketContext);
     const [user, setUser] = useState({});
-    const [socket, setSocket] = useState(null);
+    const [socket, setSocket] = useState(socketContext);
     const [joinId, setJoinId] = useState('');
     const navigate = useNavigate();
     const userData = useSelector((state) => state.UserDetails);
     
-    useEffect(()=>{
-      if(socketContext){
-        setSocket(socketContext);
-      }
-    },[])
+    // useEffect(()=>{
+    //   if(socketContext){
+    //     setSocket(socketContext);
+    //   }
+    // },[])
     
     useEffect(()=>{
       setUser(userData);
@@ -26,7 +26,8 @@ function Home() {
 
     // Create Game Logic
     const handleClientCreateGame = () =>{
-      console.log(1);
+      console.log(socketContext);
+      console.log(socket);
       socket.emit('create_game');
     }
   
