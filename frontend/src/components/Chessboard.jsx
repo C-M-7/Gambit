@@ -21,13 +21,16 @@ import { RuleBook } from "./RuleBook";
 import reconnectingUser from "./Reconnection";
 import { useNavigate } from "react-router-dom";
 import { StartModal } from "./StartModal";
+import { EndModal } from "./EndModal";
 
 function Chessboard({ color, email }) {
   const [game, setGame] = useState(new Chess());
   const [lastmove, setLastMove] = useState("");
   const [position, setPosition] = useState(game.fen());
   const [selectedSq, setSelectedSq] = useState(null);
-  const [openDialog, setDialog] = useState(true);
+  const [gameResults, setGameResults] = useState("");
+  const [openStartModal, setStartModal] = useState(true);
+  const [openEndModal, setEndModal] = useState(false);
   const currGame = JSON.parse(sessionStorage.getItem("gameId"));  
   const { socketContext } = useContext(SocketContext);
   const navigate = useNavigate();
@@ -35,7 +38,7 @@ function Chessboard({ color, email }) {
   // WAIT FOR OPPONENT DIALOG
   useEffect(() => {
     socketContext.on("start", (data) => {
-      setDialog(false);
+      setStartModal(false);
       if(!sessionStorage.getItem(currGame.gameId)){
         sessionStorage.setItem(currGame.gameId, 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
       }
@@ -91,9 +94,6 @@ function Chessboard({ color, email }) {
       ) {
         toast.error("The Game draws!");
       } else if (result.status === "CHECKMATE") {
-        toast.error(
-          `Its a checkmate, ${result.turn === "b" ? "w" : "b"} wins!`
-        );
         socketContext.emit("endGame", currGame.gameId, email, result.status);
       } else if (result.status === "CHECK") {
         toast.error("You are in Check!");
@@ -113,7 +113,7 @@ function Chessboard({ color, email }) {
   // ON RELOADING NEW/OLD GAME
   useEffect(() => {
     if (sessionStorage.getItem(currGame.gameId)) {
-      setDialog(false);
+      setStartModal(false);
       const reconnect = async () => {
         const token = Cookies.get("token");
         const response = await reconnectingUser(token, currGame.gameId);
@@ -123,7 +123,7 @@ function Chessboard({ color, email }) {
             sessionStorage.getItem(currGame.gameId),
             currGame.gameId
           );
-          setDialog(false);
+          setStartModal(false);
         }
       };
       reconnect();
@@ -153,6 +153,20 @@ function Chessboard({ color, email }) {
     };
   }, [socketContext, game, position]);
 
+  // GAME RESULTS
+  useEffect(()=>{
+    if(socketContext){
+      socketContext.on("resultGame", (result)=>{
+        toast.info(result);
+        setGameResults(result);
+        setEndModal(true);
+      })
+      return ()=>{
+        socketContext.off("resultGame");
+      }
+    }
+  },[socketContext])
+
   useEffect(() => {
     if (socketContext) {
       socketContext.on("gameUpdates", (update) => {
@@ -168,12 +182,18 @@ function Chessboard({ color, email }) {
     socketContext.emit("move", game.fen(), lastmove, currGame.gameId);
   }, [position]);
 
-  if (openDialog && !sessionStorage.getItem(currGame.gameId)) {
+  if (openStartModal && !sessionStorage.getItem(currGame.gameId)) {
     return (
       <div>
         <StartModal gameId={currGame.gameId} />
       </div>
     );
+  }
+
+  if(openEndModal){
+    return (
+      <div><EndModal gameId={currGame.gameId} gameRes = {gameResults} closeEndModal = {setEndModal}/></div>
+    )
   }
 
   // BOARD LOGIC

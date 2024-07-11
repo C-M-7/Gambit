@@ -1,6 +1,6 @@
 const { getDB } = require("../../Configs/mongoConnection");
 
-const handleResign = async(gameId, player, game, color) =>{
+const handleResign = async(gameId, game, color) =>{
     try{
         const db = await getDB();
         const currGame = await db.collection('games').findOne({gameId : gameId})

@@ -8,6 +8,7 @@ const gm = new GameManager();
 const jwt = require("jsonwebtoken");
 const { handleEndGame } = require('../Controllers/Game/endGame.js');
 const { storeGame } = require('../Controllers/Game/storeGame.js');
+const { handleResumeGame } = require('../Controllers/Game/resumeGame.js');
 require('dotenv').config();
 
 const generateGameId = () =>{
@@ -39,6 +40,7 @@ module.exports = (io) =>{
         const game = new Game(gameId);
         socket.join(gameId);
         game.p1 = player;
+
         // Creating game doc in DB
         try{
             await handleCreateGame(gameId, player);
@@ -101,7 +103,7 @@ module.exports = (io) =>{
 
     socket.on('resign', async (gameId, color)=>{
         const game = gm.getGame(gameId);
-        const result = await handleResign(gameId, player, game, color);
+        const result = await handleResign(gameId, game, color);
         if(result.status){
             io.to(gameId).emit('resign', `${color === 'b' ? 'White' : 'Black'} wins the game!`);
         }
@@ -120,7 +122,7 @@ module.exports = (io) =>{
         const game = gm.getGame(gameId);
         const result = await handleEndGame(gameId, player, res, game);
         if(result.status){
-            io.to(gameId).emit('gameUpdates', `${result.reason ==='w'?'Black':'White'} wins the game!`);
+            io.to(gameId).emit('resultGame', `${result.reason ==='w'?'Black':'White'} wins the game!`);
         }
         else{
             io.to(socket.id).emit('gameUpdates', result.reason);
@@ -128,6 +130,7 @@ module.exports = (io) =>{
     })
 
     socket.on('disconnect', () => {
+        
         console.log('A user disconnected '+socket.id);
         socket.handshake.auth = "";
     });

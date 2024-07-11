@@ -1,113 +1,128 @@
-import React,{ useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react";
 import SocketContext from "../redux/SocketContext";
-import Cookies from 'js-cookie';
-import {useNavigate} from 'react-router-dom';
-import {toast} from 'sonner';
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useSelector } from "react-redux";
+import ProfileMenu from "../components/ProfileMenu";
+import chess_bg from '../utils/chess-bg.jpg'; 
 
 function Home() {
-    console.log('hi home');
-    const { socketContext } = useContext(SocketContext);
-    const [user, setUser] = useState({});
-    const [socket, setSocket] = useState(socketContext);
-    const [joinId, setJoinId] = useState('');
-    const navigate = useNavigate();
-    const userData = useSelector((state) => state.UserDetails);
-    
-    // useEffect(()=>{
-    //   if(socketContext){
-    //     setSocket(socketContext);
-    //   }
-    // },[])
-    
-    useEffect(()=>{
-      setUser(userData);
-    },[userData])
+  console.log("hi home");
+  const { socketContext } = useContext(SocketContext);
+  const [user, setUser] = useState({});
+  const [showInput, setShowInput] = useState(false);
+  const [socket, setSocket] = useState(socketContext);
+  const [joinId, setJoinId] = useState("");
+  const navigate = useNavigate();
+  const userData = useSelector((state) => state.UserDetails);
 
-    // Create Game Logic
-    const handleClientCreateGame = () =>{
-      console.log(socketContext);
-      console.log(socket);
-      socket.emit('create_game');
-    }
-  
-    useEffect(()=>{
-      if(socket){
-        socket.on('gameId', (dataGameId)=>{
-          sessionStorage.setItem('gameId',JSON.stringify({gameId : dataGameId, color : 'w'}));
-          navigate('/playground');
-        })
-        return () =>{
-          socket.off('gameId');
-        }
-      }
-    },[socket])
-    
-    // Join Game Logic
-    const handleJoinId = (event) =>{
-      setJoinId(event.target.value);
-    }
-  
-    const handleClientJoinGame = () =>{
-      if(joinId){
-        socket.emit('join_game', joinId);
-      }
-      else{
-        setJoinId('');
-        toast.error('Invalid Joining GameId');
-      }
-    }
-    
-    const handleLogsClick = () =>{
-      navigate('/logs');
-    }
-  
-    useEffect(()=>{
-      if(socket){
-        socket.on('joinId', (response)=>{
-          if(response.status){
-            sessionStorage.setItem('gameId', JSON.stringify({gameId : response.res, color : 'b'}));
-            navigate('/playground');
-          }
-          else{
-            toast.error(response.res);
-          }
-        });
-        return () =>{
-          socket.off('joinId');
-        }
-      }
-    },[socket])
+  useEffect(() => {
+    setUser(userData);
+  }, [userData]);
 
-    // Logout Logic
-    const handleLogout = () =>{
-      Cookies.remove('token');
-      window.location.reload();
+  // Create Game Logic
+  const handleClientCreateGame = async () => {
+    socket.emit("create_game");
+  };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("gameId", (dataGameId) => {
+        sessionStorage.setItem(
+          "gameId",
+          JSON.stringify({ gameId: dataGameId, color: "w" })
+        );
+        navigate("/playground");
+      });
+      return () => {
+        socket.off("gameId");
+      };
     }
-  
-    return (
-      <>
-        <div>
-          {
-            user 
-            &&
-            <div>hello <span className="font-bold">{user.name}</span></div>
-          }
+  }, [socket]);
+
+  // Join Game Logic
+  const handleJoinId = (event) => {
+    setJoinId(event.target.value);
+  };
+
+  const handleClientJoinGame = () => {
+    if (joinId) {
+      socket.emit("join_game", joinId);
+    } else {
+      setJoinId("");
+      setShowInput(!showInput);
+    }
+  };
+
+  const handleLogsClick = () => {
+    navigate("/logs");
+  };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("joinId", (response) => {
+        if (response.status) {
+          sessionStorage.setItem(
+            "gameId",
+            JSON.stringify({ gameId: response.res, color: "b" })
+          );
+          navigate("/playground");
+        } else {
+          toast.error(response.res);
+        }
+      });
+      return () => {
+        socket.off("joinId");
+      };
+    }
+  }, [socket]);
+
+
+
+  return (
+    <>
+      <div>
+        <div className="flex justify-end">
+        <div></div>
+        <div className="mr-5 mt-3">
+          <ProfileMenu />
         </div>
-        <div className="flex flex-col items-center space-y-20">
-          <div className="flex justify-center space-x-56 mt-40">
-              <button className="border border-black p-2" onClick={handleClientCreateGame}>Create Game</button>
-              <input placeholder="Enter gameId to join game" className="border border-black p-2 w-56" onChange={handleJoinId} value={joinId}/>
-              <button className="border border-black p-2" onClick={handleClientJoinGame}>Join Game</button>
-          </div>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="font-bold mt-20 text-7xl transition">Gambit</div>
+          <div className="flex flex-col space-y-12 items-center">
+            <div className="flex justify-center space-x-56 mt-40">
+              <button
+                className="border-2 shadow-md p-4 hover:bg-black hover:text-white transition rounded-md font-bold text-3xl"
+                onClick={handleClientCreateGame}
+              >
+                Create Game
+              </button>
+              <button
+                className="border-2 shadow-md p-4 hover:bg-black hover:text-white transition rounded-md font-bold text-3xl"
+                onClick={handleClientJoinGame}
+              >
+                Join Game
+              </button>
+            </div>
+            <div>
+              {showInput && (
+                <input
+                  placeholder="Enter gameId to join game"
+                  className="border-2 shadow-md rounded-md p-4 ml-5 w-60"
+                  onChange={handleJoinId}
+                  value={joinId}
+                />
+              )}
+            </div>
           <div className="flex space-x-6">
-            <button className="border border-black p-2" onClick={handleLogsClick}>My Logs</button>
-            <button className="border border-black p-2" onClick={handleLogout}>LogOut</button>
+            <button className="border-2 shadow-md p-4 hover:bg-black hover:text-white transition rounded-md font-bold text-3xl" onClick={handleLogsClick}>My Logs</button>
+          </div>
           </div>
         </div>
-        
-      </>
-    )
+      </div>
+    </>
+  );
 }
 
-export default Home
+export default Home;

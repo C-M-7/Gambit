@@ -5,7 +5,7 @@ const handleEndGame = async(gameId, player, result, game)=>{
         const db = await getDB();
         const currGame = await db.collection('games').findOne({gameId : gameId})
         
-        if(!currGame || !currGame.player1 || !currGame.player2) return {status : false, reason : "GNF", update : null}; // game not found
+        if(!currGame || !currGame.player1 || !currGame.player2) return {status : false, reason : "Game Not Found", update : null}; // game not found
 
         const moves = game.chess.history().join(',');
         if(result === 'CHECKMATE'){
