@@ -6,9 +6,11 @@ import MenuItem from "@mui/material/MenuItem";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileMenu() {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const navigate = useNavigate();
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -21,7 +23,7 @@ export default function ProfileMenu() {
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    navigate('/profile');
   };
   return (
     <React.Fragment>

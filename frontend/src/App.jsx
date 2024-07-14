@@ -12,6 +12,7 @@ import Playground from "./pages/Playground.jsx";
 import SocketContext from "./redux/SocketContext.jsx";
 import Signup from "./pages/Signup.jsx";
 import PlayerLogs from "./pages/PlayerLogs.jsx";
+import Profile from "./pages/Profile.jsx";
 
 function App() {
   const { setSocketContext } = useContext(SocketContext);
@@ -120,6 +121,16 @@ function App() {
               <Navigate to="/signin" />
             ) : (
               <PlayerLogs />
+            )
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            userdetails.username == null ? (
+              <Navigate to="/signin" />
+            ) : (
+              <Profile/>
             )
           }
         />

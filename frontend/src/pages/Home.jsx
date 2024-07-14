@@ -7,7 +7,6 @@ import ProfileMenu from "../components/ProfileMenu";
 import chess_bg from '../utils/chess-bg.jpg'; 
 
 function Home() {
-  console.log("hi home");
   const { socketContext } = useContext(SocketContext);
   const [user, setUser] = useState({});
   const [showInput, setShowInput] = useState(false);
@@ -76,7 +75,6 @@ function Home() {
       };
     }
   }, [socket]);
-
 
 
   return (
