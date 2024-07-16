@@ -27,7 +27,15 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routing code
-
+app.get('/', (req, res)=>{
+    return res
+        .status(200)
+        .json({
+          status: true,
+          status_code: 200,
+          msg : "Server is running"
+        });
+})
 app.use('/gambit', urlRoute);
 
 // authenticate socket 
