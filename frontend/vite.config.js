@@ -6,9 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host:true,
+    port:5173,
     proxy: {
-      '/gambit': 'http://gambit.strangled.net',
-    },
-    
+
+      '/gambit': {
+        target : 'http://gambit.strangled.net',
+        changeOrigin : true,
+        secure : true,
+      },
+    }
   },
 })
