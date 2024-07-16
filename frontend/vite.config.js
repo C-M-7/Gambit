@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     host:true,
     proxy: {
-      '/gambit': 'http://localhost:7000',
+      '/gambit': 'http://gambit.strangled.net',
     },
   },
 })
