@@ -9,5 +9,6 @@ export default defineConfig({
     proxy: {
       '/gambit': 'http://gambit.strangled.net',
     },
+    
   },
 })
