@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import ProfileNavigator from "../components/ProfileNavigator";
+// import ProfileNavigator from "../components/ProfileNavigator";
 
 const Profile = () => {
   const userData = useSelector((state) => state.UserDetails);
