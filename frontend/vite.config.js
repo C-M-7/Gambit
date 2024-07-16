@@ -10,7 +10,7 @@ export default defineConfig({
     proxy: {
 
       '/gambit': {
-        target : 'http://gambit.strangled.net',
+        target : 'https://gambit.strangled.net',
         changeOrigin : true,
         secure : true,
       },
