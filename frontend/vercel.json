@@ -1,0 +1,9 @@
+{
+    "rewrites": [
+      {
+        "source": "/gambit/:path*",
+        "destination": "https://gambit.strangled.net/gambit/:path*"
+      }
+    ]
+  }
+  
