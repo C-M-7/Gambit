@@ -49,7 +49,7 @@ function Login() {
       toast.error("All fields are mandatory!");
     } else {
       try {
-        const response = await axios.post("/gambit/signin/", {
+        const response = await axios.post("https://gambit.strangled.net/gambit/signin/", {
           email: mail,
           password: password,
         });
