@@ -1,29 +1,36 @@
 import React from "react";
-import Box from "@mui/material/Box";
-import BottomNavigation from "@mui/material/BottomNavigation";
-import BottomNavigationAction from "@mui/material/BottomNavigationAction";
-import RestoreIcon from "@mui/icons-material/Restore";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
+import history from '../utils/svgs/history.svg'
+import profile from '../utils/svgs/profile.svg'
+import { useState } from "react";
+import ProfileHistory from "./ProfileHistory";
+import ProfileDetails from "./ProfileDetails";
 
-function ProfileNavigator() {
-  const [value, setValue] = React.useState(0);
+const ProfileNavigator = () => {
+  const [selected, setSelected] = useState('hist');
 
   return (
-    <Box sx={{ width: 500 }}>
-      <BottomNavigation
-        showLabels
-        value={value}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-        }}
-      >
-        <BottomNavigationAction icon={<RestoreIcon />} />
-        <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
-        <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
-      </BottomNavigation>
-    </Box>
+    <div>
+      <div className="flex space-x-10 items-center">
+        <button className="flex border-2 p-3 space-x-1 items-center shadow-lg rounded-md" onClick={()=>{setSelected('hist')}}>
+          <img src={history} className="w-5 h-5"/>
+          <span className="text-lg font-bold ">History</span>
+        </button>
+        <button className="flex border-2 p-3 space-x-1 items-center shadow-lg rounded-md" onClick={()=>{setSelected('prof')}}>
+          <img src={profile} className="w-5 h-5"/>
+          <span className="text-lg font-bold ">Profile</span>
+        </button>
+      </div>
+      <div className="flex items-center">
+      {
+        selected === 'hist' 
+        ?
+        <ProfileHistory/>
+        :
+        <ProfileDetails/>
+      }
+      </div>
+    </div>
   );
-}
+};
 
 export default ProfileNavigator;
