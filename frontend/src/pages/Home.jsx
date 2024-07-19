@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import ProfileMenu from "../components/ProfileMenu";
+import chess_bg from '../utils/chess-bg.jpg'; 
 
 function Home() {
   const { socketContext } = useContext(SocketContext);
