@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-// import ProfileNavigator from "../components/ProfileNavigator";
+import ProfileNavigator from "../components/ProfileNavigator";
 
 const Profile = () => {
   const userData = useSelector((state) => state.UserDetails);
@@ -17,7 +17,7 @@ const Profile = () => {
         </div>
       </div>
       <div className="flex flex-col items-center mt-10">
-        {/* <ProfileNavigator/>  */}
+        <ProfileNavigator/> 
       </div>
     </div>
   );
