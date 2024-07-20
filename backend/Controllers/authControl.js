@@ -93,22 +93,6 @@ const handleSignIn = async (req, res) => {
         });
     }
 
-    // if(existingUser.loginToken){
-    //   jwt.verify(
-    //     existingUser.loginToken,
-    //     String(process.env.jwt_secret_key),
-    //     (err, user)=>{
-    //       if(!err){
-
-    //       }
-    //       else{
-
-    //       }
-    //       getUserMail = user.email;
-    //     }
-    // );
-    // }
-
     // Checking the password
     const sha256 = crypto.createHash("sha256");
     sha256.update(String(password), "utf-8");
@@ -132,9 +116,10 @@ const handleSignIn = async (req, res) => {
         );
       
       res.cookie('token', token,{
-        httpOnly: false,   
+        httpOnly: true,   
         secure: true,   
         sameSite: 'strict',
+        maxAge: 3600000,
         expires : new Date(Date.now() + (15 * 24 * 60 * 60 * 1000)),
       });  
 
@@ -151,7 +136,6 @@ const handleSignIn = async (req, res) => {
       .json({ status: false, status_code: 400, error: err.message });
   }
 };
-// Byr4XRUHFzXB3G1007rZkBWwKQL4NEF1079UpiYXHuU
 
 module.exports = {
   handleSignUp,
