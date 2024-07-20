@@ -21,7 +21,10 @@ const io = new Server(server,{
 });
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173', // Adjust to your client's domain
+    credentials: true,
+  }));
 app.use(express.urlencoded({extended : true}));
 app.use(express.json());
 app.use(cookieParser());

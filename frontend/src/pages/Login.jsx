@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "../redux/slices/UserDetails";
 import SocketContext from "../redux/SocketContext";
 import { io } from "socket.io-client";
 import ClockLoader from "react-spinners/ClockLoader";
+import api from "../api";
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 function Login() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ function Login() {
   const setSocketFromLogin = async(token)=>{
     try{
       setLoading(true);
-      const socketInstance = io("http://localhost:7000", {
+      const socketInstance = io(apiUrl, {
         auth: {
           token: token,
         },
@@ -49,11 +50,10 @@ function Login() {
       toast.error("All fields are mandatory!");
     } else {
       try {
-        const response = await axios.post("/gambit/signin/", {
+        const response = await api.post("/gambit/signin/", {
           email: mail,
           password: password,
         });
-        console.log(response.data);
         if (response) {
           dispatch(setUserDetails(response.data));
           await setSocketFromLogin(response.data.loginToken);

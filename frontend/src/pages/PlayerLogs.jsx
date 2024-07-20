@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ClockLoader from 'react-spinners/ClockLoader'
 import { useSelector } from "react-redux";
-import axios from "axios";
 import LogDiv from "../components/LogDiv";
+import api from "../api";
 
 const PlayerLogs = () => {
   const [loading, setLoading] = useState(true);  
@@ -16,10 +16,9 @@ const PlayerLogs = () => {
     if(userData){
       const getLogs = async () => {
         try{
-          const logsRes = await axios.post('/gambit/getlogs/',{
+          const logsRes = await api.post('/gambit/getlogs/',{
             email : userData.email
           })
-          console.log(logsRes);
           if(logsRes.data.logs){
             setLogs(logsRes.data.logs);  
           }
