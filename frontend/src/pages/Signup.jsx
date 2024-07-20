@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {toast} from 'sonner';
-import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../api';
 
 function Signup() {
     console.log('signup');
@@ -38,7 +38,7 @@ function Signup() {
         }
         else{
             try{
-                const response = await axios.post('/gambit/signup/',{
+                const response = await api.post('/gambit/signup/',{
                     name : name,
                     username : username,
                     email : mail,

@@ -35,6 +35,11 @@ function Chessboard({ color, email }) {
   const { socketContext } = useContext(SocketContext);
   const navigate = useNavigate();
 
+  if (token && socketContext) {
+    socketContext.auth = { token: token };
+    socketContext.connect();
+  }
+
   // WAIT FOR OPPONENT DIALOG
   useEffect(() => {
     socketContext.on("start", (data) => {

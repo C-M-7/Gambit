@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Home from "./pages/Home.jsx";
 import Cookies from "js-cookie";
-import axios from "axios";
 import { toast } from "sonner";
 import { io } from "socket.io-client";
 import { useContext, useEffect, useState } from "react";
@@ -13,6 +12,7 @@ import SocketContext from "./redux/SocketContext.jsx";
 import Signup from "./pages/Signup.jsx";
 import PlayerLogs from "./pages/PlayerLogs.jsx";
 import Profile from "./pages/Profile.jsx";
+import api from "./api.js";
 
 function App() {
   const { setSocketContext } = useContext(SocketContext);
@@ -22,7 +22,7 @@ function App() {
 
   const getUserInfo = async (token) => {
     try {
-      const response = await axios.post("/gambit/userinfo", {
+      const response = await api.post("/gambit/userinfo", {
         token: token,
       });
       if (response.data.status) {
@@ -45,13 +45,10 @@ function App() {
         console.log("socket from app");
         getUserInfo(token);
         try {
-          const socketInstance = io("http://localhost:7000", {
-            auth: {
-              token: token,
-            },
-          });
-          console.log(socketInstance);
-          setSocketContext(socketInstance);
+          socket.auth = { token: token };
+          socket.connect();
+          console.log(socket);
+          setSocketContext(socket);
 
           socketInstance.on("connect", () => {
             console.log("Connected to socketInstance server");
