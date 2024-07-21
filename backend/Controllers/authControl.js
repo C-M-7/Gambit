@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 require("dotenv").config();
-import Cookies from "js-cookie";
+const Cookies = require('js-cookie');
 
 const handleSignUp = async (req, res) => {
   try {
@@ -116,10 +116,10 @@ const handleSignIn = async (req, res) => {
           { $set: { loginToken: token.toString() } }
         );
       
-      Cookies.set('token', token,{
-        httpOnly: true,   
-        secure: true,   
-        sameSite: 'None',
+      res.cookie('token', token,{
+        httpOnly: false,   
+        secure: false,   
+        sameSite: 'Lax',
         expires : new Date(Date.now() + (15 * 24 * 60 * 60 * 1000)),
       });  
 
