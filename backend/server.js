@@ -15,14 +15,14 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server,{
     cors:{
-        origin:true,
+        origin:'https://gambit-bice.versel.app/',
         credentials:true
     }
 });
 
 // Middlewares
 app.use(cors({
-    origin: 'https://gambit-bice.vercel.app/', // Adjust to your client's domain
+    origin: 'https://gambit-bice.vercel.app/', 
     credentials: true,
   }));
 app.use(express.urlencoded({extended : true}));
