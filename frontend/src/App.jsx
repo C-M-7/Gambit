@@ -13,6 +13,7 @@ import Signup from "./pages/Signup.jsx";
 import PlayerLogs from "./pages/PlayerLogs.jsx";
 import Profile from "./pages/Profile.jsx";
 import api from "./api.js";
+import socket from "./socket.js";
 
 function App() {
   const { setSocketContext } = useContext(SocketContext);

@@ -9,7 +9,8 @@ import ClockLoader from "react-spinners/ClockLoader";
 import openEyeSvg from "../utils/open-eye-svg.svg";
 import closeEyeSvg from "../utils/close-eye-svg.svg";
 import api from "../api";
-const apiUrl = import.meta.env.VITE_API_BASE_URL;
+import socket from "../socket";
+
 
 function Login() {
   const navigate = useNavigate();
@@ -31,12 +32,9 @@ function Login() {
   const setSocketFromLogin = async (token) => {
     try {
       setLoading(true);
-      const socketInstance = io(apiUrl, {
-        auth: {
-          token: token,
-        },
-      });
-      setSocketContext(socketInstance);
+      socket.auth = {token : token};
+      socket.connect();
+      setSocketContext(socket);
       setLoading(false);
     } catch (err) {
       navigate("/signin");
@@ -58,6 +56,7 @@ function Login() {
         });
         if (response) {
           dispatch(setUserDetails(response.data));
+          
           await setSocketFromLogin(response.data.loginToken);
           navigate("/home");
           toast.success("SignIn was successful!");
@@ -67,10 +66,6 @@ function Login() {
       }
     }
   };
-
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
 
   if (loading) {
     return (
