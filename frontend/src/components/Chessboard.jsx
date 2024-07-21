@@ -35,10 +35,10 @@ function Chessboard({ color, email }) {
   const { socketContext } = useContext(SocketContext);
   const navigate = useNavigate();
 
-  if (token && socketContext) {
-    socketContext.auth = { token: token };
-    socketContext.connect();
-  }
+  // if (token && socketContext) {
+  //   socketContext.auth = { token: token };
+  //   socketContext.connect();
+  // }
 
   // WAIT FOR OPPONENT DIALOG
   useEffect(() => {
@@ -121,6 +121,7 @@ function Chessboard({ color, email }) {
       setStartModal(false);
       const reconnect = async () => {
         const token = Cookies.get("token");
+        console.log(token);
         const response = await reconnectingUser(token, currGame.gameId);
         if (response.status) {
           socketContext.emit(
