@@ -7,12 +7,12 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    proxy: {
-      "/gambit": {
-        target: "https://gambit.strangled.net",
-        changeOrigin: true,
-        secure: true,
-      },
-    },
+    // proxy: {
+    //   "/gambit": {
+    //     target: "https://gambit.strangled.net",
+    //     changeOrigin: true,
+    //     secure: true,
+    //   },
+    // },
   },
 });

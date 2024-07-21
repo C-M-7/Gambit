@@ -15,14 +15,14 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server,{
     cors:{
-        origin:'https://main.d2hy5c92eczkwn.amplifyapp.com/',
+        origin:'https://main.d2hy5c92eczkwn.amplifyapp.com',
         credentials:true
     }
 });
 
 // Middlewares
 app.use(cors({
-    origin: 'https://main.d2hy5c92eczkwn.amplifyapp.com/', 
+    origin: 'https://main.d2hy5c92eczkwn.amplifyapp.com', 
     credentials: true,
   }));
 app.use(express.urlencoded({extended : true}));
