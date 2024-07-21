@@ -56,7 +56,6 @@ function Login() {
         });
         if (response) {
           dispatch(setUserDetails(response.data));
-          
           await setSocketFromLogin(response.data.loginToken);
           navigate("/home");
           toast.success("SignIn was successful!");

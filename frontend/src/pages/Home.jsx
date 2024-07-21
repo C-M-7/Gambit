@@ -87,9 +87,8 @@ function Home() {
         </div>
         </div>
         <div className="flex flex-col items-center">
-          {/* <div className="font-bold mt-20 text-7xl transition">Gambit</div> */}
-          <img src={Title} className="-mt-32 w-[500px] h-[500px]"/>
-          <div className="flex flex-col space-y-12 items-center">
+          <img src={Title} className="h-40 mt-10"/>
+          <div className="flex flex-col space-y-12 items-center mt-28">
             <div className="flex justify-center space-x-56">
               <button
                 className="border-2 shadow-md p-4 hover:bg-black hover:text-white transition rounded-md font-bold text-3xl"
