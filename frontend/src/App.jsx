@@ -43,7 +43,6 @@ function App() {
       setIsLoading(false);
     } else {
       if (token) {
-        console.log("socket from app");
         getUserInfo(token);
         try {
           socket.auth = { token: token };
@@ -51,19 +50,17 @@ function App() {
           console.log(socket);
           setSocketContext(socket);
 
-          socketInstance.on("connect", () => {
-            console.log("Connected to socketInstance server");
-          });
+          socket.on("connect");
 
-          socketInstance.on("disconnect", () => {
+          socket.on("disconnect", () => {
             // Cookies.remove("token");
-            socketInstance.disconnect();
+            socket.disconnect();
             console.log("user disconnected from server");
           });
 
           return () => {
-            socketInstance.off("connect");
-            socketInstance.off("disconnect");
+            socket.off("connect");
+            socket.off("disconnect");
           };
         } catch (err) {
           toast.warning(

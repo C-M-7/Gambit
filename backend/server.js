@@ -22,7 +22,7 @@ const io = new Server(server,{
 
 // Middlewares
 app.use(cors({
-    origin: 'http://localhost:5173', // Adjust to your client's domain
+    origin: 'https://gambit-bice.vercel.app/', // Adjust to your client's domain
     credentials: true,
   }));
 app.use(express.urlencoded({extended : true}));
