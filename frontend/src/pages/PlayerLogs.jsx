@@ -19,8 +19,11 @@ const PlayerLogs = () => {
           const logsRes = await api.post('/gambit/getlogs/',{
             email : userData.email
           })
-          if(logsRes.data.logs){
+          if(logsRes.data.status){
             setLogs(logsRes.data.logs);  
+          }
+          else{
+            setnoLogs(true);  
           }
           setLoading(false);
         }
@@ -33,7 +36,7 @@ const PlayerLogs = () => {
   },[])
 
   if(loading){
-    return <div className="ml-[50%] mt-[25%]"><ClockLoader speedMultiplier={4}/></div>;
+    return <div className="ml-[50%] mt-[25%]"><ClockLoader speedMultiplier={3}/></div>;
   }
 
   if(noLogs){

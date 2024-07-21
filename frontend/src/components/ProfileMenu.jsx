@@ -22,7 +22,11 @@ export default function ProfileMenu() {
     window.location.reload();
   };
 
-  const handleClose = () => {
+  const handleClose = () =>{
+    setAnchorEl(null);
+  }
+
+  const handleProfile = () => {
     navigate('/profile');
   };
   return (
@@ -76,7 +80,7 @@ export default function ProfileMenu() {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={handleProfile}>
           Profile
         </MenuItem>
         <MenuItem onClick={handleLogout}>
