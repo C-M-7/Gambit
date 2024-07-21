@@ -3,7 +3,6 @@ import Login from "./pages/Login.jsx";
 import Home from "./pages/Home.jsx";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { io } from "socket.io-client";
 import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "./redux/slices/UserDetails.jsx";
@@ -27,7 +26,7 @@ function App() {
         token: token,
       });
       if (response.data.status) {
-        console.log(response.data.user);
+        // console.log(response.data.user);
         dispatch(setUserDetails(response.data.user));
       }
     } catch (err) {
@@ -43,14 +42,15 @@ function App() {
       setIsLoading(false);
     } else {
       if (token) {
+        // console.log(token);
         getUserInfo(token);
         try {
           socket.auth = { token: token };
           socket.connect();
-          console.log(socket);
+          // console.log(socket);
           setSocketContext(socket);
 
-          socket.on("connect");
+          socket.on("connect", ()=>{});
 
           socket.on("disconnect", () => {
             // Cookies.remove("token");

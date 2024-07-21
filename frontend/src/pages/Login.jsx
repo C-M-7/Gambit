@@ -54,7 +54,7 @@ function Login() {
           email: mail,
           password: password,
         });
-        if (response) {
+        if (response.data) {
           dispatch(setUserDetails(response.data));
           await setSocketFromLogin(response.data.loginToken);
           navigate("/home");
