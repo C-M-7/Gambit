@@ -8,9 +8,9 @@ import { io } from "socket.io-client";
 import ClockLoader from "react-spinners/ClockLoader";
 import openEyeSvg from "../utils/open-eye-svg.svg";
 import closeEyeSvg from "../utils/close-eye-svg.svg";
-import api from "../api";
+// import api from "../api";
 import socket from "../socket";
-
+import axios from "axios";
 
 function Login() {
   const navigate = useNavigate();
@@ -50,10 +50,17 @@ function Login() {
       toast.error("All fields are mandatory!");
     } else {
       try {
-        const response = await api.post("/gambit/signin/", {
-          email: mail,
-          password: password,
-        });
+       
+        const sendConf={
+          url:"https://gambit.strangled.net/gambit/signin/",
+          method:'POST',
+          data:{
+            email:mail,
+            password:password
+          },
+          withCredentials:true
+        }
+        const response = await axios(sendConf);
         if (response.data) {
           dispatch(setUserDetails(response.data));
           await setSocketFromLogin(response.data.loginToken);
