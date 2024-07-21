@@ -15,7 +15,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server,{
     cors:{
-        origin:'https://gambit-bice.vercel.app',
+        origin:'https://main.d2hy5c92eczkwn.amplifyapp.com/',
         credentials:true
     }
 });
