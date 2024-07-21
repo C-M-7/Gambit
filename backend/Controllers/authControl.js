@@ -117,9 +117,9 @@ const handleSignIn = async (req, res) => {
         );
       
       res.cookie('token', token,{
-        httpOnly: false,   
-        secure: false,   
-        sameSite: 'Lax',
+        httpOnly: true,   
+        secure: true,   
+        sameSite: 'None',
         expires : new Date(Date.now() + (15 * 24 * 60 * 60 * 1000)),
       });  
 
