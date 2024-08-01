@@ -9,7 +9,7 @@ function Home() {
   const { socketContext } = useContext(SocketContext);
   const [showInput, setShowInput] = useState(false);
   const [joinId, setJoinId] = useState("");
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleClientCreateGame = async () => {
     socketContext.emit("create_game");
