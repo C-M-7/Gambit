@@ -26,34 +26,45 @@ function App() {
         token: token,
       });
       if (response.data.status) {
-        // console.log(response.data.user);
         dispatch(setUserDetails(response.data.user));
       }
+      else{
+        toast.error(response.data.error);
+      }
     } catch (err) {
-      console.log(err.message);
+      try{
+        const response = await api.post("/gambit/accessToken");
+        if(response.data.status){
+          localStorage.setItem("accessAuthToken", response.data.accessToken);
+          dispatch(setUserDetails(response.data.user));
+        }
+        else{
+          toast.error(response.data.error);
+        }
+      }
+      catch(err){
+        toast.error(err.message);
+      }
+      // toast.error(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    const token = Cookies.get("token");
-    if (userdetails.username !== null && Object.keys(userdetails).length > 0) {
-      setIsLoading(false);
-    } else {
+    const token = localStorage.getItem("accessAuthToken");
+    async function fetchDatafromToken(){
       if (token) {
-        // console.log(token);
-        getUserInfo(token);
+        await getUserInfo(token);
+        
         try {
           socket.auth = { token: token };
           socket.connect();
-          // console.log(socket);
           setSocketContext(socket);
 
           socket.on("connect", ()=>{});
 
           socket.on("disconnect", () => {
-            // Cookies.remove("token");
             socket.disconnect();
             console.log("user disconnected from server");
           });
@@ -72,6 +83,12 @@ function App() {
         setIsLoading(false);
         toast.error("Token not found! Please SigIn again!");
       }
+    }
+
+    if (userdetails.username !== null && Object.keys(userdetails).length > 0) {
+      setIsLoading(false);
+    } else {
+      fetchDatafromToken();
     }
   }, []);
 

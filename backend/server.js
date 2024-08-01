@@ -16,6 +16,7 @@ const server = http.createServer(app);
 const io = new Server(server,{
     cors:{
         origin:'https://main.d2ojwhxvva0y6l.amplifyapp.com',
+        // origin:'http://localhost:5173',
         credentials:true
     }
 });
@@ -23,6 +24,7 @@ const io = new Server(server,{
 // Middlewares
 app.use(cors({
     origin: 'https://main.d2ojwhxvva0y6l.amplifyapp.com', 
+    // origin : 'http://localhost:5173',
     credentials: true,
   }));
 app.use(express.urlencoded({extended : true}));

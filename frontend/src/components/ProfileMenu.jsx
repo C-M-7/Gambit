@@ -7,19 +7,25 @@ import Tooltip from "@mui/material/Tooltip";
 import Box from "@mui/material/Box";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import api from "../api";
+import { useSelector } from "react-redux";
 
 export default function ProfileMenu() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
+  const userdetails = useSelector((state) => state.UserDetails);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
   // Logout Logic
-  const handleLogout = () => {
-    Cookies.remove("token");
-    window.location.reload();
+  const handleLogout = async () => {
+    localStorage.removeItem('accessAuthToken');
+    const response = await api.post("/gambit/dltToken", {
+      email : userdetails.email
+    });
+    if(response.status) {window.location.reload();}
   };
 
   const handleClose = () =>{
@@ -41,7 +47,7 @@ export default function ProfileMenu() {
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
           >
-            <Avatar sx={{ width: 32, height: 32, backgroundColor: 'black' }}></Avatar>
+            <Avatar sx={{ width: 40, height: 40, backgroundColor: 'gray', color: 'black' }}></Avatar>
           </IconButton>
         </Tooltip>
       </Box>
@@ -56,7 +62,7 @@ export default function ProfileMenu() {
           sx: {
             overflow: "visible",
             filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-            mt: 1.5,
+            mt: 1.0,
             "& .MuiAvatar-root": {
               width: 32,
               height: 32,

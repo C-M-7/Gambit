@@ -5,6 +5,7 @@ import Modal from "@mui/material/Modal";
 import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { colors } from "@mui/material";
 
 const style = {
   position: "absolute",
@@ -13,9 +14,10 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 500,
   height: 200,
-  bgcolor: "background.paper",
+  bgcolor: "black",
   boxShadow: 24,
   p: 4,
+  color : 'white',
 };
 
 export const StartModal = ({ gameId }) => {
@@ -58,7 +60,7 @@ export const StartModal = ({ gameId }) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{fontWeight : 'bold'}}>
             Waiting for Opponent...
           </Typography>
           <Typography>
@@ -66,7 +68,7 @@ export const StartModal = ({ gameId }) => {
             <span className="hover:underline cursor-default" onClick={copyGameId}>{gameId}</span>
           </Typography>
           <div className="flex flex-col items-center">
-            <button className="border-2 p-2 mt-6" onClick={handleCancel}>
+            <button className="border-2 border-gray-700 font-bold hover:bg-white hover:text-black transition p-2 mt-6" onClick={handleCancel}>
               Cancel
             </button>
           </div>

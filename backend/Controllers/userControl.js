@@ -1,88 +1,98 @@
 const { getDB } = require("../Configs/mongoConnection");
 const jwt = require("jsonwebtoken");
-require('dotenv').config();
+require("dotenv").config();
 
-const handleUserInfo = async(req, res) =>{
-    try{
-        const db = await getDB();
-        const {token} = req.body;
+const handleUserInfo = async (req, res) => {
+  try {
+    const { token } = req.body;
 
-        jwt.verify(
-            token,
-            String(process.env.jwt_secret_key),
-            (err)=>{
-                if(err) return res.status(403).json({status : false, status_code : 403, message : "Invalid Token"});
-            }
-        );
-        
-        const user = await db.collection("users").findOne({loginToken : token});
+    const cookies = req.cookies;
+    const refreshToken = cookies["refreshAuthToken"];
 
-        if(!user){
-            return res.status(400).json({
-                status: false,
-                status_code: 400,
-                error: "User doesn't exist",
-            })
-        }
-
-        return res.status(200).json({
-            status : true,
-            status_code : 200,
-            user : {
-                username : user.username,
-                name : user.name,
-                email : user.email,
-            }
-        })
+    if (!refreshToken) {
+      return res.status(401).json({
+        status: false,
+        status_code: 401,
+        error: "Token not found, SignIn again!",
+      });
     }
-    catch(err){
-        return res
-        .status(400)
-        .json({ status: false, status_code: 400, error: err.message });
+
+    // Verify and decode the token
+    const decoded = jwt.verify(token, String(process.env.jwt_secret_key));
+
+    if (!decoded) {
+      return res.status(401).json({
+        status: false,
+        status_code: 401,
+        error: "User doesn't exist",
+      });
     }
-}
 
-const handleUserLogs = async(req, res) =>{
-    try{
-        const db = await getDB();
-        const {email} = req.body;
+    return res.status(200).json({
+      status: true,
+      status_code: 200,
+      user: {
+        username: decoded.username,
+        email: decoded.email,
+      },
+    });
+  } catch (err) {
+    return res.status(403).json({
+      status: false,
+      status_code: 403,
+      message: "Invalid Token",
+    });
+  }
+};
 
-        const user = await db.collection("users").findOne({email : email});
+const handleUserLogs = async (req, res) => {
+  try {
+    const db = await getDB();
+    const { email, pageNum } = req.body;
 
-        if(!user){
-            return res.status(400).json({
-                status : false, 
-                status_code : 400,
-                error : "User doesn't exist",
-            })
-        }
+    const user = await db.collection("users").findOne({ email: email });
 
-        const logs = await db.collection("games").find({
-            $or : [{player1 : email}, {player2 : email}]
-        }).toArray();
-
-        if(logs.length === 0){
-            return res.status(400).json({
-                status : false,
-                status_code : 400,
-                error : "Start playing games to access logs"
-            })
-        }
-
-        return res.status(200).json({
-            status : true,
-            status_code : 200,
-            logs : logs
-        })
+    if (!user) {
+      return res.status(400).json({
+        status: false,
+        status_code: 400,
+        error: "User doesn't exist",
+      });
     }
-    catch(err){
-        return res
-        .status(400)
-        .json({status : false, status_code : 400, error : err.message});
+
+    const start = (pageNum-1)*5;
+    const end = pageNum*5;
+
+    const logs = await db
+      .collection("games")
+      .find({
+        $or: [{ player1: email }, { player2: email }],
+      })
+      .skip(parseInt(start))
+      .limit(parseInt(end) - parseInt(start))
+      .toArray();
+
+    if (logs.length === 0) {
+      return res.status(400).json({
+        status: false,
+        status_code: 400,
+        error: "No Logs",
+      });
     }
-}
+
+    return res.status(200).json({
+      status: true,
+      status_code: 200,
+      logs: logs,
+    });
+  } catch (err) {
+    return res
+      .status(400)
+      .json({ status: false, status_code: 400, error: err.message });
+  }
+};
 
 module.exports = {
-    handleUserInfo,
-    handleUserLogs
-}
+  handleUserInfo,
+  handleUserLogs,
+};
