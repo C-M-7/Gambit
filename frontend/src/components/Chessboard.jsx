@@ -144,9 +144,8 @@ function Chessboard({ color, email }) {
   useEffect(() => {
     if (sessionStorage.getItem(currGame.gameId)) {
       const reconnect = async () => {
-        const token = Cookies.get("token");
-        console.log(token);
-        const response = await reconnectingUser(token, currGame.gameId);
+        const accessAuthToken = localStorage.getItem("accessAuthToken");
+        const response = await reconnectingUser(accessAuthToken, currGame.gameId);
         if (response.status) {
           socketContext.emit(
             "reconnection",

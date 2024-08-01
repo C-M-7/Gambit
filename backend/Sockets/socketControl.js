@@ -74,12 +74,10 @@ module.exports = (io) =>{
         authenticateToken(token, async (isValid) =>{
             if(isValid){
                 const game = gm.getGame(gameId);
-                // console.log("lastmove : ", lastmove);
                 if(lastmove){ 
                     game.chess.move(lastmove);
-                    // console.log("game : ", game);
                 }
-                const result = await storeGame(gameId, currFen);
+                const result = await storeGame(gameId, currFen, lastmove);
                 if(result.status){
                     socket.to(gameId).emit('oppMove',currFen,   lastmove);
                 }

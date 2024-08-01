@@ -1,5 +1,5 @@
 const express = require('express');
-const { handleSignUp, handleSignIn } = require('../Controllers/authControl');
+const { handleSignUp, handleSignIn, generateAccessTokenOnly, deleteRefreshToken } = require('../Controllers/authControl');
 const { authenticateToken } = require('../Middlewares/authenticateToken');
 const { handleUserInfo, handleUserLogs } = require('../Controllers/userControl');
 const { getGame } = require('../Controllers/Game/getGame');
@@ -13,5 +13,7 @@ router.post('/userinfo', handleUserInfo);
 router.post('/getgame', getGame);
 router.post('/getlogs', handleUserLogs);
 router.post('/cancelgame', handleCancelgame);
+router.post('/accessToken', generateAccessTokenOnly);
+router.post('/dltToken', deleteRefreshToken);
 
 module.exports = router;

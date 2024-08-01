@@ -31,6 +31,7 @@ function Login() {
 
   const setSocketFromLogin = async (token) => {
     try {
+      localStorage.setItem("accessAuthToken", token);
       setLoading(true);
       socket.auth = {token : token};
       socket.connect();
@@ -53,6 +54,7 @@ function Login() {
        
         const sendConf={
           url:"https://gambit.strangled.net/gambit/signin/",
+          // url:"http://localhost:7000/gambit/signin",
           method:'POST',
           data:{
             email:mail,
@@ -61,14 +63,17 @@ function Login() {
           withCredentials:true
         }
         const response = await axios(sendConf);
-        if (response.data) {
-          dispatch(setUserDetails(response.data));
-          await setSocketFromLogin(response.data.loginToken);
+        if (response.status) {
+          dispatch(setUserDetails(response.data.user));
+          await setSocketFromLogin(response.data.accessToken);
           navigate("/home");
           toast.success("SignIn was successful!");
         }
+        // else if(response.data.status_code === 401){
+          
+        // }
       } catch (err) {
-        console.error("Error :", err.response.data);
+        console.error("Error :", err.message);
       }
     }
   };

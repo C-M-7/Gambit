@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Chessboard from '../components/Chessboard';
 import { useSelector } from 'react-redux';
+import ChessboardMoves from '../components/ChessboardMoves';
 
 function Playground() {
   const [loading, setLoading] = useState(true);
@@ -20,13 +21,16 @@ function Playground() {
   }
 
   return (
-    <>
-        <div>{gameId}</div>
-        <div>{color}</div>
-        <div className='flex justify-center mt-10'>
-          <Chessboard color={color} email={userData.email}/>
+    <div>
+        <div className='flex justify-between px-20 py-5'>
+          <div className='font-bold text-lg'>GameId : {gameId}</div>
+          <div className='font-bold text-lg'>Color : {color === 'w' ? 'White' : 'Black'}</div>
         </div>
-    </>
+        <div className='flex justify-center space-x-10'>
+          <Chessboard color={color} email={userData.email}/>
+          <ChessboardMoves/>
+        </div>
+    </div>
 
   )
 }

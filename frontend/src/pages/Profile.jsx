@@ -1,23 +1,23 @@
 import React from "react";
 import { useSelector } from "react-redux";
-// import ProfileNavigator from "../components/ProfileNavigator";
+import ProfileNavigations from "../components/ProfileNavigations";
 
 const Profile = () => {
-  const userData = useSelector((state) => state.UserDetails);
+  const userData = useSelector((state) => state.UserDetails); 
 
   return (
     <div>
-      <div className="flex justify-evenly mt-36">
-        <div className="flex flex-col">
-          <span className="text-3xl font-bold">{userData.name}</span>
-          <span className="text-gray-400">~{userData.username}</span>
+      <div className="flex flex-col items-center">
+        <div className="flex justify-evenly mt-36 space-x-96">
+          <div>
+          <div className="font-bold text-xl">~{userData.username}</div>
+          <div>{userData.email}</div>
+          </div>
+          <div>Add Image</div>
         </div>
-        <div>
-            <div>Add Image</div>
+        <div className="mt-16">
+          <ProfileNavigations />
         </div>
-      </div>
-      <div className="flex flex-col items-center mt-10">
-        {/* <ProfileNavigator/>  */}
       </div>
     </div>
   );

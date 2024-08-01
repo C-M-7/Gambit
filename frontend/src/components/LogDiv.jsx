@@ -9,15 +9,26 @@ const LogDiv = ({ data, user }) => {
 
   return (
     <>
-      <div className={`flex flex-col border-2 px-2 py-4 rounded-md w-[75%] shadow-md ${winner===user.email ? 'bg-green-400' : (winner === undefined ? 'bg-slate-500' : 'bg-red-400')}`}>
-        <div className="flex justify-between">
-            <div className="font-bold">GameId : {data.gameId}</div>
-            <div className="text-gray-400">Played : {date}</div>
+      <div className={`flex flex-col border-2 px-2 py-4 rounded-md w-[100%] shadow-md ${winner === user.email ? 'bg-green-400' : 'bg-red-400'} cursor-pointer`}>
+        <div className="flex justify-between space-x-32">
+        {
+          winner === user.email
+          ?
+          <div className="font-bold">WON</div>
+          :
+          (
+            winner === undefined
+            ?
+            <div className="font-bold">DRAW</div>
+            :
+            <div className="font-bold">LOST</div>
+          )
+        }
+        <div>{opponent}</div>
+        <div>{data.gameId}</div>
+        <div>{date}</div>
         </div>
-        <div>Opponent : {opponent}</div>
-        <div>Winner : {winner}</div>
-        <div>Moves : {moves}</div>
-        <div>Fen : {fen}</div>
+        
       </div>
     </>
   );

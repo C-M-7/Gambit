@@ -1,9 +1,9 @@
 // import { getDB } from "../../../backend/Configs/mongoConnection";
-import axios from 'axios';
+import api from '../api';
 
 const reconnectingUser = async (token, gameId) => {
     try{
-        const response = await axios.post("/gambit/userinfo",{
+        const response = await api.post("/gambit/userinfo",{
             token : token
         });
 
@@ -13,7 +13,7 @@ const reconnectingUser = async (token, gameId) => {
         }
         const user = response.data.user;
         
-        const gameRes = await axios.post("/gambit/getgame",{
+        const gameRes = await api.post("/gambit/getgame",{
             gameId : gameId,
         })
 
