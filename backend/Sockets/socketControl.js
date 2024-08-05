@@ -10,6 +10,7 @@ const { handleEndGame } = require('../Controllers/Game/endGame.js');
 const { storeGame } = require('../Controllers/Game/storeGame.js');
 const { handleResumeGame } = require('../Controllers/Game/resumeGame.js');
 require('dotenv').config();
+let gameTimer;
 
 const generateGameId = () =>{
     return uuidv4();
@@ -35,7 +36,8 @@ module.exports = (io) =>{
     const player = socket.handshake.headers.email;
     const token = socket.handshake.auth.token;
 
-    socket.on("create_game", async ()=>{
+    socket.on("create_game", async (timer)=>{
+        gameTimer = timer;
         const gameId = generateGameId();
         const game = new Game(gameId);
         socket.join(gameId);

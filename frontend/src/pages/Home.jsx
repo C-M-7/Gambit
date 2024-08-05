@@ -4,16 +4,22 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ProfileMenu from "../components/ProfileMenu";
 import Title from "../utils/home-title-gambit.png";
+import  CreateGameModal  from "../components/CreateGameModal";
 
 function Home() {
   const { socketContext } = useContext(SocketContext);
   const [showInput, setShowInput] = useState(false);
   const [joinId, setJoinId] = useState("");
-  const navigate = useNavigate()
+  const [createModal, setCreateModal] = useState(false);
+  const navigate = useNavigate();
 
-  const handleClientCreateGame = async () => {
-    socketContext.emit("create_game");
+  const handleClientCreateGame = (timer) => {
+    socketContext.emit("create_game", (60*timer));
   };
+
+  const handleToggleModal = () =>{
+    setCreateModal(!createModal);
+  }
 
   useEffect(() => {
     if (socketContext) {
@@ -61,7 +67,11 @@ function Home() {
 
   return (
     <div className="bg-black">
-      <div className="">
+      {
+        createModal &&
+        <div><CreateGameModal toggleModal = {handleToggleModal} startGame = {handleClientCreateGame}/></div>
+      }
+      <div>
         <div className="flex justify-end">
           <div></div>
           <div className="mr-5 mt-3">
@@ -76,10 +86,10 @@ function Home() {
             <div className="flex justify-center space-x-56">
               <button
                 className="border-2 border-white shadow-md p-4 text-white transition rounded-md font-bold text-3xl hover:bg-white hover:text-black hover:border-black"
-                onClick={handleClientCreateGame}
+                onClick={handleToggleModal}
               >
                 Create Game
-              </button>
+              </button>    
               <button
                 className="border-2 border-white shadow-md p-4 text-white transition rounded-md font-bold text-3xl hover:bg-white hover:text-black hover:border-black"
                 onClick={handleClientJoinGame}

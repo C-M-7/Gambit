@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "../redux/slices/UserDetails";
 import SocketContext from "../redux/SocketContext";
-import { io } from "socket.io-client";
 import ClockLoader from "react-spinners/ClockLoader";
 import openEyeSvg from "../utils/open-eye-svg.svg";
 import closeEyeSvg from "../utils/close-eye-svg.svg";
@@ -53,8 +52,8 @@ function Login() {
       try {
        
         const sendConf={
-          url:"https://gambit.strangled.net/gambit/signin/",
-          // url:"http://localhost:7000/gambit/signin",
+          // url:"https://gambit.strangled.net/gambit/signin/",
+          url:"http://localhost:7000/gambit/signin",
           method:'POST',
           data:{
             email:mail,
@@ -69,9 +68,6 @@ function Login() {
           navigate("/home");
           toast.success("SignIn was successful!");
         }
-        // else if(response.data.status_code === 401){
-          
-        // }
       } catch (err) {
         console.error("Error :", err.message);
       }

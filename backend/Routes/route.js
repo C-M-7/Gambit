@@ -16,4 +16,4 @@ router.post('/cancelgame', handleCancelgame);
 router.post('/accessToken', generateAccessTokenOnly);
 router.post('/dltToken', deleteRefreshToken);
 
-module.exports = router;
+module.exports=router;

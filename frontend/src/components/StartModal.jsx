@@ -2,10 +2,9 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { colors } from "@mui/material";
+import api from "../api";
 
 const style = {
   position: "absolute",
@@ -28,9 +27,10 @@ export const StartModal = ({ gameId }) => {
 
   const handleCancel = async () => {
     try {
-      const response = await axios.post("/gambit/cancelgame", {
+      const response = await api.post("/gambit/cancelgame", {
         gameId: gameId,
       });
+
       if (response.data.status) {
         toast.info(response.data.result);
       } else {

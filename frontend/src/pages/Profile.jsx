@@ -7,10 +7,10 @@ const Profile = () => {
 
   return (
     <div>
-      <div className="flex flex-col items-center">
-        <div className="flex justify-evenly mt-36 space-x-96">
+      <div className="flex flex-col items-center ">
+        <div className="flex justify-evenly mt-20 space-x-96">
           <div>
-          <div className="font-bold text-xl">~{userData.username}</div>
+          <div className="font-bold text-xl ">~{userData.username}</div>
           <div>{userData.email}</div>
           </div>
           <div>Add Image</div>

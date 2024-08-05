@@ -60,9 +60,9 @@ const PlayerLogs = () => {
   return(
   <>
     <div className="flex -ml-24 justify-around font-bold mb-3">
-      <div>Result</div>
-      <div>Opponent</div>
-      <div>GameId</div>
+      <div className="font-bold">Result</div>
+      <div className="font-bold">Opponent</div>
+      <div className="font-bold">GameId</div>
       <div>PlayedAt</div>
     </div>
     {

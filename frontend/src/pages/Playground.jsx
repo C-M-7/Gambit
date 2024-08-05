@@ -26,7 +26,12 @@ function Playground() {
           <div className='font-bold text-lg'>GameId : {gameId}</div>
           <div className='font-bold text-lg'>Color : {color === 'w' ? 'White' : 'Black'}</div>
         </div>
-        <div className='flex justify-center space-x-10'>
+        
+        <div className='flex justify-evenly space-x-10'>
+          <div className='flex flex-col justify-between'>
+            <div className='mt-10 border-2 p-2 rounded-md'>Timer1</div>
+            <div className='mb-10 border-2 p-2 rounded-md'>Timer2</div>
+          </div>
           <Chessboard color={color} email={userData.email}/>
           <ChessboardMoves/>
         </div>

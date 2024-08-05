@@ -13,15 +13,7 @@ const handleCancelgame = async (req, res) => {
       });
     }
 
-    const game = await db.collection("games").findOneAndDelete({gameId : gameId});
-
-    if(game.gameId !== gameId){
-        return res.status(400).json({
-            status: false,
-            status_code: 400,
-            error: "Game not found",
-          });
-    }
+    await db.collection("games").findOneAndDelete({gameId : gameId});
 
     return res.status(200).json({
         status : true,
